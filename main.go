@@ -7,11 +7,13 @@ import (
 
 var (
     amqpUri *string
+    redisUri *string
     mode *string
 )
 
 func init() {
     amqpUri = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
+    redisUri = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
     mode = flag.String("mode", "job", "mode with which to run")
 
     flag.Parse()

@@ -5,10 +5,16 @@ import (
 )
 
 type MasterManager struct {
-
+    Datastore Datastore
 }
 
 func NewMasterManager() (m MasterManager) {
+    var err error
+
+    if m.Datastore, err = NewDatastore(*redisUri); err != nil {
+        log.Fatal(err)
+    }
+
     return
 }
 
