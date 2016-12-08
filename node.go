@@ -104,6 +104,7 @@ func (n *Node)ConsumerLoop() (err error) {
     }
 
     go n.Consume(deliveries, n.Consumer.done)
+
     select{}
 }
 
@@ -113,22 +114,26 @@ func (n *Node)Consume(deliveries <-chan amqp.Delivery, done chan error) {
 
         if output, err := n.Consumer.tm.Consume( string(d.Body) ); err != nil {
             log.Printf("[%v] : errors %q", d.DeliveryTag, err)
+
             d.Ack(false)
         } else {
-            if !n.Consumer.tm.ShouldRespond() {
-                break
+            if n.Consumer.tm.ShouldRespond() {
+                go func() {
+                    log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
+
+                    if err := n.Deliver(output); err != nil {
+                        log.Printf("[%v] : response errored: %q", d.DeliveryTag, err)
+
+                        d.Ack(false)
+                    } else {
+                        log.Printf("[%v] : responded", d.DeliveryTag)
+
+                        d.Ack(true)
+                    }
+                }()
+            } else {
+                d.Ack(true)
             }
-
-            go func() {
-                log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
-
-                if err := n.Deliver(output); err != nil {
-                    log.Printf("[%v] : response errored: %q", d.DeliveryTag, err)
-                } else {
-                    log.Printf("[%v] : responded", d.DeliveryTag)
-                    d.Ack(true)
-                }
-            }()
         }
     }
     log.Printf("handle: deliveries channel closed")
