@@ -2,7 +2,9 @@ package main
 
 import (
     "encoding/json"
+    "fmt"
     "log"
+    "time"
 )
 
 type JobManager struct {
@@ -13,6 +15,7 @@ type JobNotification struct {
     Context map[string]string
     Name string
     Type string
+    UUID string
 }
 
 func NewJobManager() (j JobManager) {
@@ -25,7 +28,16 @@ func NewJobManager() (j JobManager) {
 
 func (j JobManager) Consume(body string) (output map[string]interface{}, err error) {
     jn := j.ParseBody(body)
-    output, err = j.JobList[jn.Type](jn)
+
+    output = make(map[string]interface{})
+
+    output["UUID"] = jn.UUID
+
+    start := time.Now().UnixNano()
+    output["Data"], err = j.JobList[jn.Type](jn)
+    end := time.Now().UnixNano()
+
+    output["Duration"] = fmt.Sprintf("%d ms", (end - start) / 1000000)
 
     return
 }

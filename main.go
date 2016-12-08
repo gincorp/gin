@@ -2,14 +2,7 @@ package main
 
 import (
     "flag"
-    // "fmt"
     "log"
-    // "net/http"
-    // "time"
-
-    // "github.com/boltdb/bolt"
-    // "github.com/gorilla/context"
-    // "golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -31,10 +24,10 @@ func main() {
 
     switch *mode {
     case "job", "master":
-        _, err := NewConsumer(*amqpUri, *mode)
+        node := NewNode(*amqpUri, *mode)
 
-        if err != nil {
-            log.Fatal(err.Error())
+        if err := node.ConsumerLoop(); err != nil {
+            log.Fatal(err)
         }
 
     default:
