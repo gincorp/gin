@@ -6,16 +6,16 @@ import (
 )
 
 var (
-	amqpUri  *string
+	amqpURI  *string
 	mode     *string
-	redisUri *string
+	redisURI *string
 
 	node Node
 )
 
 func init() {
-	amqpUri = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
-	redisUri = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
+	amqpURI = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
+	redisURI = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
 	mode = flag.String("mode", "job", "mode with which to run")
 
 	flag.Parse()
@@ -23,12 +23,12 @@ func init() {
 }
 
 func main() {
-	log.Printf("Using %q", *amqpUri)
+	log.Printf("Using %q", *amqpURI)
 	log.Printf("Running in %q mode", *mode)
 
 	switch *mode {
 	case "job", "master":
-		node = NewNode(*amqpUri, *mode)
+		node = NewNode(*amqpURI, *mode)
 
 		go node.TaskManager.StartAPI()
 

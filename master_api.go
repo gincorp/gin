@@ -7,26 +7,36 @@ import (
 	"net/http"
 )
 
+// StarterRequest ...
+// Placeholder for incoming 'start workflow' requests
 type StarterRequest struct {
 	Name string
 }
 
+// StarterResponse ...
+// Placeholder for outgoing 'start workflow' responses
 type StarterResponse struct {
 	UUID string
 }
 
+// ErrorResponse ...
+// Placeholder for outgoing errors in responses
 type ErrorResponse struct {
 	Message string
 }
 
+// StartAPI ...
+// Listen on 0.0.0.0:8080 to requests for master nodes
+// Used for node metadata, monitoring, and
+// starting and looking up workflows
 func (m MasterManager) StartAPI() {
-	http.HandleFunc("/mon/", m.MonRoute)
-	http.HandleFunc("/wf/", m.WFRoute)
+	http.HandleFunc("/mon/", m.monRoute)
+	http.HandleFunc("/wf/", m.wfRoute)
 
 	http.ListenAndServe(":8080", nil)
 }
 
-func (m MasterManager) MonRoute(w http.ResponseWriter, r *http.Request) {
+func (m MasterManager) monRoute(w http.ResponseWriter, r *http.Request) {
 	var o interface{}
 
 	status := http.StatusOK
@@ -47,7 +57,7 @@ func (m MasterManager) MonRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(j))
 }
 
-func (m MasterManager) WFRoute(w http.ResponseWriter, r *http.Request) {
+func (m MasterManager) wfRoute(w http.ResponseWriter, r *http.Request) {
 	var o interface{}
 
 	status := http.StatusOK
@@ -55,7 +65,7 @@ func (m MasterManager) WFRoute(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		uuid := r.URL.Path[len("/wf/"):]
 
-		o = m.GetWF(uuid)
+		o = m.getWF(uuid)
 		switch o.(type) {
 		case ErrorResponse:
 			status = http.StatusBadRequest
@@ -65,7 +75,7 @@ func (m MasterManager) WFRoute(w http.ResponseWriter, r *http.Request) {
 		sr := StarterRequest{}
 		json.NewDecoder(r.Body).Decode(&sr)
 
-		o = m.StartWF(sr)
+		o = m.startWF(sr)
 		switch o.(type) {
 		case ErrorResponse:
 			status = http.StatusBadRequest
@@ -86,7 +96,16 @@ func (m MasterManager) WFRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(j))
 }
 
-func (m MasterManager) StartWF(s StarterRequest) (sr interface{}) {
+func (m MasterManager) getWF(uuid string) (wf interface{}) {
+	wfr, err := m.datastore.LoadWorkflowRunner(uuid)
+
+	if err != nil {
+		return ErrorResponse{err.Error()}
+	}
+	return wfr
+}
+
+func (m MasterManager) startWF(s StarterRequest) (sr interface{}) {
 	uuid, err := m.Load(s.Name)
 
 	if err != nil {
@@ -97,13 +116,4 @@ func (m MasterManager) StartWF(s StarterRequest) (sr interface{}) {
 	}
 
 	return
-}
-
-func (m MasterManager) GetWF(uuid string) (wf interface{}) {
-	wfr, err := m.Datastore.LoadWorkflowRunner(uuid)
-
-	if err != nil {
-		return ErrorResponse{err.Error()}
-	}
-	return wfr
 }

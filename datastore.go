@@ -8,10 +8,14 @@ import (
 	"gopkg.in/redis.v5"
 )
 
+// Datastore ...
+// Provide interfaces into workflow and state storage
 type Datastore struct {
 	db *redis.Client
 }
 
+// NewDatastore ...
+// Create and test a connection into storage
 func NewDatastore(uri string) (d Datastore, err error) {
 	var opts *redis.Options
 
@@ -25,6 +29,8 @@ func NewDatastore(uri string) (d Datastore, err error) {
 	return
 }
 
+// LoadWorkflow ...
+// Return a Workflow object from a workflow name
 func (d Datastore) LoadWorkflow(name string) (wf Workflow, err error) {
 	var config string
 
@@ -35,6 +41,9 @@ func (d Datastore) LoadWorkflow(name string) (wf Workflow, err error) {
 	return ParseWorkflow(config)
 }
 
+// LoadWorkflowRunner ...
+// Return a WorkflowRunner; a parsed and compiled workflow
+// with a simple state machine
 func (d Datastore) LoadWorkflowRunner(uuid string) (wfr WorkflowRunner, err error) {
 	var config string
 
@@ -45,6 +54,8 @@ func (d Datastore) LoadWorkflowRunner(uuid string) (wfr WorkflowRunner, err erro
 	return ParseWorkflowRunner(config)
 }
 
+// DumpWorkflowRunner ...
+// Dump a running `WorkflowRunner`'s state to storage
 func (d Datastore) DumpWorkflowRunner(wfr WorkflowRunner) error {
 	j, err := json.Marshal(wfr)
 	if err != nil {

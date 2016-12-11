@@ -4,12 +4,18 @@ import (
 	"os"
 )
 
+// Mon ...
+// Monitoring/ Metadata container
 type Mon struct {
+	// Job node's hostname
 	Hostname            string
 	EUID, GID, PID, UID int
 	UTF8                string
 }
 
+// NewMon ...
+// Initialise and return a `Mon`,
+// containing monitoring and metadata
 func NewMon() (m Mon) {
 	h, err := os.Hostname()
 	if err != nil {

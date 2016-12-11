@@ -1,0 +1,7 @@
+- repo: git://github.com/chuyeow/golang-pre-commit-hooks
+  sha: HEAD
+  hooks:
+  - id: go-lint
+  - id: go-vet
+  - id: go-fmt
+  - id: go-metalinter

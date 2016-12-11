@@ -7,10 +7,17 @@ import (
 	"time"
 )
 
+// JobManager ...
+// Job configuration
 type JobManager struct {
+	// Map job aliases to functions providing that job.
+	// Jobs receive a notification providing data from the queue and return
+	// maps for json to handle
 	JobList map[string]func(JobNotification) (map[string]interface{}, error)
 }
 
+// JobNotification ...
+// Data container for Unmarshal'd json from the message queue
 type JobNotification struct {
 	Context  map[string]string
 	Name     string
@@ -19,6 +26,8 @@ type JobNotification struct {
 	UUID     string
 }
 
+// NewJobManager ...
+// Return a `JobManager` to route jobs fromt the queue
 func NewJobManager() (j JobManager) {
 	j.JobList = make(map[string]func(JobNotification) (map[string]interface{}, error))
 	j.JobList["post-to-web"] = doWebCall
@@ -28,8 +37,11 @@ func NewJobManager() (j JobManager) {
 	return
 }
 
+// Consume ...
+// Handle json from the message queue. Format it correctly, route the job, and
+// return output and metadata
 func (j JobManager) Consume(body string) (output map[string]interface{}, err error) {
-	jn := j.ParseBody(body)
+	jn := j.parseBody(body)
 
 	output = make(map[string]interface{})
 
@@ -45,7 +57,7 @@ func (j JobManager) Consume(body string) (output map[string]interface{}, err err
 	return
 }
 
-func (j JobManager) ParseBody(b string) (n JobNotification) {
+func (j JobManager) parseBody(b string) (n JobNotification) {
 	if err := json.Unmarshal([]byte(b), &n); err != nil {
 		log.Println(err)
 	}

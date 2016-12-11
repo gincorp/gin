@@ -7,6 +7,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Consumer ...
+// Container for `Consumer` configuration and run time values
 type Consumer struct {
 	channel *amqp.Channel
 	conn    *amqp.Connection
@@ -18,6 +20,9 @@ type Consumer struct {
 	uri     string
 }
 
+// NewConsumer ...
+// Given the URI of a rabbitMQ instance and a key with which to consume from,
+// generate a Consumer; `Node`s use this receive messages
 func NewConsumer(uri, key string) *Consumer {
 	exchangeName := "workflow.exchange"
 
@@ -35,6 +40,8 @@ func NewConsumer(uri, key string) *Consumer {
 	return c
 }
 
+// Shutdown ...
+// Close AMPQ connections
 func (c *Consumer) Shutdown() error {
 	// will close() the deliveries channel
 	if err := c.channel.Cancel(c.tag, true); err != nil {
