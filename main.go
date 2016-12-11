@@ -1,42 +1,42 @@
 package main
 
 import (
-    "flag"
-    "log"
+	"flag"
+	"log"
 )
 
 var (
-    amqpUri *string
-    mode *string
-    redisUri *string
+	amqpUri  *string
+	mode     *string
+	redisUri *string
 
-    node Node
+	node Node
 )
 
 func init() {
-    amqpUri = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
-    redisUri = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
-    mode = flag.String("mode", "job", "mode with which to run")
+	amqpUri = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
+	redisUri = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
+	mode = flag.String("mode", "job", "mode with which to run")
 
-    flag.Parse()
+	flag.Parse()
 
 }
 
 func main() {
-    log.Printf("Using %q", *amqpUri)
-    log.Printf("Running in %q mode", *mode)
+	log.Printf("Using %q", *amqpUri)
+	log.Printf("Running in %q mode", *mode)
 
-    switch *mode {
-    case "job", "master":
-        node = NewNode(*amqpUri, *mode)
+	switch *mode {
+	case "job", "master":
+		node = NewNode(*amqpUri, *mode)
 
-        go node.TaskManager.StartAPI()
+		go node.TaskManager.StartAPI()
 
-        if err := node.ConsumerLoop(); err != nil {
-            log.Fatal(err)
-        }
+		if err := node.ConsumerLoop(); err != nil {
+			log.Fatal(err)
+		}
 
-    default:
-        log.Fatalf("Do not recognise mode '%q'", *mode)
-    }
+	default:
+		log.Fatalf("Do not recognise mode '%q'", *mode)
+	}
 }

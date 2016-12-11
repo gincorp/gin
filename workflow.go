@@ -1,17 +1,17 @@
 package main
 
 import (
-    "encoding/json"
+	"encoding/json"
 )
 
 type Workflow struct {
-    Name string
-    Steps []Step
-    Variables map[string]string
+	Name      string
+	Steps     []Step
+	Variables map[string]string
 }
 
 func ParseWorkflow(data string) (w Workflow, err error) {
-    err = json.Unmarshal([]byte(data), &w)
+	err = json.Unmarshal([]byte(data), &w)
 
-    return
+	return
 }
