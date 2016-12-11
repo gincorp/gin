@@ -1,76 +1,76 @@
 package main
 
 import (
-    "fmt"
-    "log"
+	"fmt"
+	"log"
 
-    "github.com/streadway/amqp"
+	"github.com/streadway/amqp"
 )
 
 type Producer struct {
-    exch      string
-    key       string
-    uri       string
+	exch string
+	key  string
+	uri  string
 }
 
-func NewProducer(uri, key string) (*Producer) {
-    exchangeName := "workflow.exchange"
+func NewProducer(uri, key string) *Producer {
+	exchangeName := "workflow.exchange"
 
-    p := &Producer{
-        exch:     exchangeName,
-        key:      key,
-        uri:      uri,
-    }
+	p := &Producer{
+		exch: exchangeName,
+		key:  key,
+		uri:  uri,
+	}
 
-    return p
+	return p
 }
 
-func (p *Producer)send(body []byte) error {
-    connection, err := amqp.Dial(p.uri)
-    if err != nil {
-        return fmt.Errorf("Dial: %s", err)
-    }
+func (p *Producer) send(body []byte) error {
+	connection, err := amqp.Dial(p.uri)
+	if err != nil {
+		return fmt.Errorf("Dial: %s", err)
+	}
 
-    defer connection.Close()
+	defer connection.Close()
 
-    channel, err := connection.Channel()
-    if err != nil {
-        return fmt.Errorf("Channel: %s", err)
-    }
+	channel, err := connection.Channel()
+	if err != nil {
+		return fmt.Errorf("Channel: %s", err)
+	}
 
-    if err := channel.Confirm(false); err != nil {
-        return fmt.Errorf("Channel could not be put into confirm mode: %s", err)
-    }
+	if err := channel.Confirm(false); err != nil {
+		return fmt.Errorf("Channel could not be put into confirm mode: %s", err)
+	}
 
-    confirms := channel.NotifyPublish(make(chan amqp.Confirmation, 1))
+	confirms := channel.NotifyPublish(make(chan amqp.Confirmation, 1))
 
-    defer confirmOne(confirms)
+	defer confirmOne(confirms)
 
-    if err = channel.Publish(
-        p.exch,         // publish to an exchange
-        p.key,          // routing to 0 or more queues
-        false,           // mandatory
-        false,           // immediate
-        amqp.Publishing{
-            Headers:         amqp.Table{},
-            ContentType:     "text/plain",
-            ContentEncoding: "",
-            Body:            body,
-            DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
-            Priority:        0,              // 0-9
-        },
-    ); err != nil {
-        return fmt.Errorf("Exchange Publish: %s", err)
-    }
+	if err = channel.Publish(
+		p.exch, // publish to an exchange
+		p.key,  // routing to 0 or more queues
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			Headers:         amqp.Table{},
+			ContentType:     "text/plain",
+			ContentEncoding: "",
+			Body:            body,
+			DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
+			Priority:        0,              // 0-9
+		},
+	); err != nil {
+		return fmt.Errorf("Exchange Publish: %s", err)
+	}
 
-    return nil
+	return nil
 }
 
 func confirmOne(confirms <-chan amqp.Confirmation) {
-    if confirmed := <-confirms; confirmed.Ack {
-        log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
-    } else {
-        log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
-    }
+	if confirmed := <-confirms; confirmed.Ack {
+		log.Printf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag)
+	} else {
+		log.Printf("failed delivery of delivery tag: %d", confirmed.DeliveryTag)
+	}
 
 }
