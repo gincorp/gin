@@ -7,6 +7,8 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// WorkflowRunner ...
+// Stateful representation of a Running Workflow
 type WorkflowRunner struct {
 	EndTime   time.Time
 	Last      string
@@ -16,8 +18,8 @@ type WorkflowRunner struct {
 	Workflow  Workflow
 }
 
-//type Variables map[string]interface{}
-
+// NewWorkflowRunner ...
+// Initialise and Return a WorkflowRunner
 func NewWorkflowRunner(wf Workflow) (wfr WorkflowRunner) {
 	wfr.UUID = uuid.NewV4().String()
 	wfr.Workflow = wf
@@ -27,16 +29,22 @@ func NewWorkflowRunner(wf Workflow) (wfr WorkflowRunner) {
 	return
 }
 
+// ParseWorkflowRunner ...
+// Parse a Running Workflow from a stored state
 func ParseWorkflowRunner(data string) (wfr WorkflowRunner, err error) {
 	err = json.Unmarshal([]byte(data), &wfr)
 
 	return
 }
 
+// Start ...
+// Put a Running Workflow into a started state
 func (wfr *WorkflowRunner) Start() {
 	wfr.StartTime = time.Now()
 }
 
+// Next ...
+// Return, should there be one, the next step of a Running Workflow
 func (wfr *WorkflowRunner) Next() (s Step, done bool) {
 	var idx int
 
@@ -57,6 +65,8 @@ func (wfr *WorkflowRunner) Next() (s Step, done bool) {
 	return wfr.Workflow.Steps[idx+1], false
 }
 
+// End ...
+// Put a Running Workflow into an ended state
 func (wfr *WorkflowRunner) End() {
 	wfr.EndTime = time.Now()
 }

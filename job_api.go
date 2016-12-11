@@ -6,13 +6,16 @@ import (
 	"net/http"
 )
 
+// StartAPI ...
+// Listen on 0.0.0.0:8000 to requests for job nodes
+// Used for node metadata and monitoring
 func (j JobManager) StartAPI() {
-	http.HandleFunc("/mon", j.MonRoute)
+	http.HandleFunc("/mon", j.monRoute)
 
 	http.ListenAndServe(":8000", nil)
 }
 
-func (j JobManager) MonRoute(w http.ResponseWriter, r *http.Request) {
+func (j JobManager) monRoute(w http.ResponseWriter, r *http.Request) {
 	var o interface{}
 
 	status := http.StatusOK

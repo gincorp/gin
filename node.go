@@ -8,6 +8,10 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Node ...
+// Nodes are the powerhouse of the tool; they receive messages
+// from RabbitMQ (*Consumer), push messages into RabbitMQ (*Producer)
+// and handle what those individual messages are (TaskManager)
 type Node struct {
 	Consumer    *Consumer
 	Producer    *Producer
@@ -18,6 +22,8 @@ var (
 	consumerKey, producerKey string
 )
 
+// NewNode ...
+// Return a Node container
 func NewNode(uri, nodeMode string) (n Node) {
 	switch nodeMode {
 	case "job":
@@ -41,6 +47,8 @@ func NewNode(uri, nodeMode string) (n Node) {
 	return
 }
 
+// ConsumerLoop ...
+// Connect to RabbitMQ based on a *Consumer and route messages
 func (n *Node) ConsumerLoop() (err error) {
 	if n.Consumer.conn, err = amqp.Dial(n.Consumer.uri); err != nil {
 		return fmt.Errorf("Dial: %s", err)
@@ -113,6 +121,9 @@ func (n *Node) ConsumerLoop() (err error) {
 	select {}
 }
 
+// Consume ...
+// Consume messages off a channel provided by `Node.ConsumerLoop`
+// This function blocks on tasks, but not when delivering
 func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 	for d := range deliveries {
 		log.Printf("[%v] : %q received %q", d.DeliveryTag, n.Consumer.queue, d.Body)
@@ -145,6 +156,8 @@ func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 	done <- nil
 }
 
+// Deliver ...
+// Turn a message into json and use a producer to send it
 func (n *Node) Deliver(message interface{}) error {
 	j, err := json.Marshal(message)
 

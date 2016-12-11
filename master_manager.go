@@ -5,27 +5,28 @@ import (
 	"log"
 )
 
+// MasterManager ...
+// Container for Master Task manager configuration
 type MasterManager struct {
-	Datastore Datastore
+	datastore Datastore
 }
 
+// NewMasterManager ...
+// Initialise and return a Master Task Manager
 func NewMasterManager() (m MasterManager) {
 	var err error
 
-	if m.Datastore, err = NewDatastore(*redisUri); err != nil {
+	if m.datastore, err = NewDatastore(*redisURI); err != nil {
 		log.Fatal(err)
 	}
 
 	return
 }
 
+// Consume ...
+// Handle json from the message queue; for a Master node these will be responses.
+// Parse messages, update Workflow contexts, write to database and call next step
 func (m MasterManager) Consume(body string) (output map[string]interface{}, err error) {
-	// Parse body into some object
-	// Lookup workflow runner by parsed body's UUID
-	// if object.Register != "" then add to wfr.Variables[object.Register]
-	// dump back to datastore
-	// Call m.continue()
-
 	var b interface{}
 	var wfr WorkflowRunner
 
@@ -35,7 +36,7 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 
 	output = b.(map[string]interface{})
 	uuid := output["UUID"].(string)
-	if wfr, err = m.Datastore.LoadWorkflowRunner(uuid); err != nil {
+	if wfr, err = m.datastore.LoadWorkflowRunner(uuid); err != nil {
 		return
 	}
 
@@ -53,14 +54,16 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		}
 	}
 
-	m.Datastore.DumpWorkflowRunner(wfr)
+	m.datastore.DumpWorkflowRunner(wfr)
 	m.Continue(wfr.UUID)
 
 	return
 }
 
+// Load ...
+// Load a workflow from storage and create a WorkflowRunner state machine
 func (m MasterManager) Load(name string) (uuid string, err error) {
-	wf, err := m.Datastore.LoadWorkflow(name)
+	wf, err := m.datastore.LoadWorkflow(name)
 	if err != nil {
 		return
 	}
@@ -68,13 +71,16 @@ func (m MasterManager) Load(name string) (uuid string, err error) {
 	wfr := NewWorkflowRunner(wf)
 	wfr.Start()
 
-	m.Datastore.DumpWorkflowRunner(wfr)
+	m.datastore.DumpWorkflowRunner(wfr)
 
 	return wfr.UUID, nil
 }
 
+// Continue ...
+// Should there be a next step in the workflow, compile step templates
+// and push the step to the emssage queue
 func (m MasterManager) Continue(uuid string) {
-	wfr, err := m.Datastore.LoadWorkflowRunner(uuid)
+	wfr, err := m.datastore.LoadWorkflowRunner(uuid)
 	if err != nil {
 		log.Print(err)
 		return
@@ -97,7 +103,7 @@ func (m MasterManager) Continue(uuid string) {
 
 		compiledStep.UUID = wfr.UUID
 
-		j, err := compiledStep.Json()
+		j, err := compiledStep.JSON()
 		if err != nil {
 			log.Print(err)
 			return
@@ -108,6 +114,6 @@ func (m MasterManager) Continue(uuid string) {
 		}
 
 		wfr.Last = compiledStep.Name
-		m.Datastore.DumpWorkflowRunner(wfr)
+		m.datastore.DumpWorkflowRunner(wfr)
 	}
 }

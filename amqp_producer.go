@@ -7,12 +7,16 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Producer ...
+// Configuration for sending messages via rabbit MQ
 type Producer struct {
 	exch string
 	key  string
 	uri  string
 }
 
+// NewProducer ...
+// Create configuration container *Producer
 func NewProducer(uri, key string) *Producer {
 	exchangeName := "workflow.exchange"
 
