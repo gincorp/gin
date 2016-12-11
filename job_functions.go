@@ -4,6 +4,7 @@ import (
     "bytes"
     "encoding/json"
     "io/ioutil"
+    "log"
     "net/http"
 )
 
@@ -34,5 +35,10 @@ func doWebCall(jn JobNotification) (output map[string]interface{}, err error) {
     }
 
     output,_ = rawOutput.(map[string]interface{})
+    return
+}
+
+func logOutput(jn JobNotification) (output map[string]interface{}, err error) {
+    log.Println(jn.Context["message"])
     return
 }

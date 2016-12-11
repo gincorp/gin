@@ -14,6 +14,7 @@ type JobManager struct {
 type JobNotification struct {
     Context map[string]string
     Name string
+    Register string
     Type string
     UUID string
 }
@@ -22,6 +23,7 @@ func NewJobManager() (j JobManager) {
     j.JobList = make(map[string]func(JobNotification)(map[string]interface {}, error))
     j.JobList["post-to-web"] = doWebCall
     j.JobList["get-from-web"] = doWebCall
+    j.JobList["log"] = logOutput
 
     return
 }
@@ -32,6 +34,7 @@ func (j JobManager) Consume(body string) (output map[string]interface{}, err err
     output = make(map[string]interface{})
 
     output["UUID"] = jn.UUID
+    output["Register"] = jn.Register
 
     start := time.Now().UnixNano()
     output["Data"], err = j.JobList[jn.Type](jn)
