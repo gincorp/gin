@@ -7,8 +7,10 @@ import (
 
 var (
     amqpUri *string
-    redisUri *string
     mode *string
+    redisUri *string
+
+    node Node
 )
 
 func init() {
@@ -26,7 +28,9 @@ func main() {
 
     switch *mode {
     case "job", "master":
-        node := NewNode(*amqpUri, *mode)
+        node = NewNode(*amqpUri, *mode)
+
+        go node.TaskManager.StartAPI()
 
         if err := node.ConsumerLoop(); err != nil {
             log.Fatal(err)
