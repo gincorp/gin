@@ -114,6 +114,7 @@ func (m MasterManager) Continue(uuid string) {
 		}
 
 		wfr.Last = compiledStep.Name
-		m.datastore.DumpWorkflowRunner(wfr)
 	}
+
+	m.datastore.DumpWorkflowRunner(wfr)
 }
