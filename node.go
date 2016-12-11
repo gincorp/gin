@@ -11,6 +11,7 @@ import (
 type Node struct {
     Consumer *Consumer
     Producer *Producer
+    TaskManager TaskManager
 }
 
 var (
@@ -22,17 +23,21 @@ func NewNode(uri, nodeMode string) (n Node) {
     case "job":
         consumerKey = "job"
         producerKey = "master"
+
+        n.TaskManager = NewJobManager()
     case "master":
         consumerKey = "master"
         producerKey = "job"
-    }
 
+        n.TaskManager = NewMasterManager()
+    }
 
     c := NewConsumer(uri, consumerKey)
     p := NewProducer(uri, producerKey)
 
     n.Consumer = c
     n.Producer = p
+
     return
 }
 
@@ -112,12 +117,12 @@ func (n *Node)Consume(deliveries <-chan amqp.Delivery, done chan error) {
     for d := range deliveries {
         log.Printf("[%v] : %q received %q", d.DeliveryTag, n.Consumer.queue, d.Body)
 
-        if output, err := n.Consumer.tm.Consume( string(d.Body) ); err != nil {
+        if output, err := n.TaskManager.Consume( string(d.Body) ); err != nil {
             log.Printf("[%v] : errors %q", d.DeliveryTag, err)
 
             d.Ack(false)
         } else {
-            if n.Consumer.tm.ShouldRespond() {
+            if n.TaskManager.ShouldRespond() {
                 go func() {
                     log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
 

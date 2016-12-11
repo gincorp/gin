@@ -16,22 +16,11 @@ type Consumer struct {
     key     string
     queue   string
     tag     string
-    tm      TaskManager
     uri     string
 }
 
 func NewConsumer(uri, key string) (*Consumer) {
     exchangeName := "workflow.exchange"
-
-    var tm TaskManager
-    switch key {
-    case "job":
-        tm = NewJobManager()
-    case "master":
-        tm = NewMasterManager()
-    default:
-        log.Fatalf("Key %q is invalid", key)
-    }
 
     c := &Consumer{
         channel: nil,
@@ -41,7 +30,6 @@ func NewConsumer(uri, key string) (*Consumer) {
         key:     key,
         queue:   key,
         tag:     key,
-        tm:      tm,
         uri:     uri,
     }
 
