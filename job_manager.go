@@ -23,6 +23,7 @@ func NewJobManager() (j JobManager) {
     j.JobList = make(map[string]func(JobNotification)(map[string]interface {}, error))
     j.JobList["post-to-web"] = doWebCall
     j.JobList["get-from-web"] = doWebCall
+    j.JobList["log"] = logOutput
 
     return
 }
