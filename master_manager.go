@@ -123,7 +123,7 @@ func (m MasterManager) Continue(uuid string) {
 		}
 
 		if err := node.Producer.send(j); err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			wfr.Fail()
 		}
 
