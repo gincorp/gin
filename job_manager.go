@@ -49,15 +49,18 @@ func (j JobManager) Consume(body string) (output map[string]interface{}, err err
 	output["Register"] = jn.Register
 	output["Failed"] = false
 
-	start := time.Now().UnixNano()
+	start := time.Now()
 	output["Data"], err = j.JobList[jn.Type](jn)
-	end := time.Now().UnixNano()
+	end := time.Now()
 
 	if err != nil {
 		output["Failed"] = true
 	}
 
-	output["Duration"] = fmt.Sprintf("%d ms", (end-start)/1000000)
+	format := "2006-01-02T15:04:05"
+	output["Start"] = start.Format(format)
+	output["End"] = end.Format(format)
+	output["Duration"] = fmt.Sprintf("%d ms", (end.UnixNano()-start.UnixNano())/1000000)
 
 	return
 }
