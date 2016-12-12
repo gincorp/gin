@@ -104,6 +104,8 @@ func (m MasterManager) Continue(uuid string) {
 				step.Name,
 				err.Error(),
 			)
+
+			wfr.Fail()
 			return
 		}
 
@@ -112,11 +114,13 @@ func (m MasterManager) Continue(uuid string) {
 		j, err := compiledStep.JSON()
 		if err != nil {
 			log.Print(err)
+			wfr.Fail()
 			return
 		}
 
 		if err := node.Producer.send(j); err != nil {
 			log.Fatal(err)
+			wfr.Fail()
 		}
 
 		wfr.Last = compiledStep.Name
