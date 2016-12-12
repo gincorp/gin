@@ -68,6 +68,18 @@ func (wfr *WorkflowRunner) Next() (s Step, done bool) {
 	return wfr.Workflow.Steps[idx+1], false
 }
 
+// Current returns the current step. It is used, mainly,
+// after a step has returned to add extra data
+func (wfr *WorkflowRunner) Current() (i int, s Step) {
+	for i, s = range wfr.Workflow.Steps {
+		if s.Name == wfr.Last {
+			return
+		}
+	}
+
+	return
+}
+
 // Fail will set state to "failed" and end the workflow runner
 func (wfr *WorkflowRunner) Fail() {
 	wfr.endWithState("failed")

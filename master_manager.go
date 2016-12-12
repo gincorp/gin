@@ -40,6 +40,10 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		return
 	}
 
+	idx, step := wfr.Current()
+	step.SetStatus(output)
+	wfr.Workflow.Steps[idx] = step
+
 	switch output["Register"].(type) {
 	case string:
 		register := output["Register"].(string)
