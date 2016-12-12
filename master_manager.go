@@ -40,6 +40,10 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		return
 	}
 
+	idx, step := wfr.Current()
+	step.SetStatus(output)
+	wfr.Workflow.Steps[idx] = step
+
 	switch output["Register"].(type) {
 	case string:
 		register := output["Register"].(string)
@@ -52,6 +56,12 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		default:
 			log.Println("Not registering output: got garbage back")
 		}
+	}
+
+	if output["Failed"].(bool) {
+		wfr.Fail()
+		m.datastore.DumpWorkflowRunner(wfr)
+		return
 	}
 
 	m.datastore.DumpWorkflowRunner(wfr)
@@ -91,29 +101,34 @@ func (m MasterManager) Continue(uuid string) {
 	if done {
 		wfr.End()
 	} else {
-		compiledStep, err := step.Compile(wfr.Variables)
+		err := step.Compile(wfr.Variables)
 		if err != nil {
 			log.Printf("workflow %s failed to compile step %s: %q",
 				wfr.Workflow.Name,
 				step.Name,
 				err.Error(),
 			)
+
+			wfr.Fail()
 			return
 		}
 
-		compiledStep.UUID = wfr.UUID
+		step.UUID = wfr.UUID
 
-		j, err := compiledStep.JSON()
+		j, err := step.JSON()
 		if err != nil {
 			log.Print(err)
+			wfr.Fail()
 			return
 		}
 
 		if err := node.Producer.send(j); err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			wfr.Fail()
 		}
 
-		wfr.Last = compiledStep.Name
-		m.datastore.DumpWorkflowRunner(wfr)
+		wfr.Last = step.Name
 	}
+
+	m.datastore.DumpWorkflowRunner(wfr)
 }

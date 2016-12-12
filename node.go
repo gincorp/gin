@@ -128,28 +128,28 @@ func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 	for d := range deliveries {
 		log.Printf("[%v] : %q received %q", d.DeliveryTag, n.Consumer.queue, d.Body)
 
-		if output, err := n.TaskManager.Consume(string(d.Body)); err != nil {
+		output, err := n.TaskManager.Consume(string(d.Body))
+		if err != nil {
 			log.Printf("[%v] : errors %q", d.DeliveryTag, err)
 
-			d.Ack(false)
+		}
+
+		if n.TaskManager.ShouldRespond() {
+			go func() {
+				log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
+
+				if err := n.Deliver(output); err != nil {
+					log.Printf("[%v] : response errored: %q", d.DeliveryTag, err)
+
+					d.Ack(false)
+				} else {
+					log.Printf("[%v] : responded", d.DeliveryTag)
+
+					d.Ack(true)
+				}
+			}()
 		} else {
-			if n.TaskManager.ShouldRespond() {
-				go func() {
-					log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
-
-					if err := n.Deliver(output); err != nil {
-						log.Printf("[%v] : response errored: %q", d.DeliveryTag, err)
-
-						d.Ack(false)
-					} else {
-						log.Printf("[%v] : responded", d.DeliveryTag)
-
-						d.Ack(true)
-					}
-				}()
-			} else {
-				d.Ack(true)
-			}
+			d.Ack(true)
 		}
 	}
 	log.Printf("handle: deliveries channel closed")
