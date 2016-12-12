@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -59,7 +60,7 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 	}
 
 	if output["Failed"].(bool) {
-		wfr.Fail()
+		wfr.Fail(fmt.Sprintf("Step %q failed. See below", wfr.Last))
 		m.datastore.DumpWorkflowRunner(wfr)
 		return
 	}
@@ -72,13 +73,15 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 
 // Load ...
 // Load a workflow from storage and create a WorkflowRunner state machine
-func (m MasterManager) Load(name string) (uuid string, err error) {
+func (m MasterManager) Load(name string, variables map[string]interface{}) (uuid string, err error) {
 	wf, err := m.datastore.LoadWorkflow(name)
 	if err != nil {
 		return
 	}
 
 	wfr := NewWorkflowRunner(wf)
+	wfr.Variables["Runtime"] = variables
+
 	wfr.Start()
 
 	m.datastore.DumpWorkflowRunner(wfr)
@@ -103,13 +106,9 @@ func (m MasterManager) Continue(uuid string) {
 	} else {
 		err := step.Compile(wfr.Variables)
 		if err != nil {
-			log.Printf("workflow %s failed to compile step %s: %q",
-				wfr.Workflow.Name,
-				step.Name,
-				err.Error(),
-			)
+			wfr.Fail(fmtError(step, err))
+			m.datastore.DumpWorkflowRunner(wfr)
 
-			wfr.Fail()
 			return
 		}
 
@@ -117,18 +116,22 @@ func (m MasterManager) Continue(uuid string) {
 
 		j, err := step.JSON()
 		if err != nil {
-			log.Print(err)
-			wfr.Fail()
+			wfr.Fail(fmtError(step, err))
+			m.datastore.DumpWorkflowRunner(wfr)
+
 			return
 		}
 
 		if err := node.Producer.send(j); err != nil {
-			log.Print(err)
-			wfr.Fail()
+			wfr.Fail(fmtError(step, err))
 		}
 
 		wfr.Last = step.Name
 	}
 
 	m.datastore.DumpWorkflowRunner(wfr)
+}
+
+func fmtError(step Step, err error) string {
+	return fmt.Sprintf("%s: %s", step.Name, err.Error())
 }

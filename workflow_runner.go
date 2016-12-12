@@ -10,13 +10,14 @@ import (
 // WorkflowRunner ...
 // Stateful representation of a Running Workflow
 type WorkflowRunner struct {
-	State     string
-	EndTime   time.Time
-	Last      string
-	StartTime time.Time
-	UUID      string
-	Variables map[string]interface{}
-	Workflow  Workflow
+	EndTime      time.Time
+	ErrorMessage string
+	Last         string
+	StartTime    time.Time
+	State        string
+	UUID         string
+	Variables    map[string]interface{}
+	Workflow     Workflow
 }
 
 // NewWorkflowRunner ...
@@ -81,7 +82,8 @@ func (wfr *WorkflowRunner) Current() (i int, s Step) {
 }
 
 // Fail will set state to "failed" and end the workflow runner
-func (wfr *WorkflowRunner) Fail() {
+func (wfr *WorkflowRunner) Fail(msg string) {
+	wfr.ErrorMessage = msg
 	wfr.endWithState("failed")
 }
 
