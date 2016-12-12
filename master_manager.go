@@ -97,7 +97,7 @@ func (m MasterManager) Continue(uuid string) {
 	if done {
 		wfr.End()
 	} else {
-		compiledStep, err := step.Compile(wfr.Variables)
+		err := step.Compile(wfr.Variables)
 		if err != nil {
 			log.Printf("workflow %s failed to compile step %s: %q",
 				wfr.Workflow.Name,
@@ -109,9 +109,9 @@ func (m MasterManager) Continue(uuid string) {
 			return
 		}
 
-		compiledStep.UUID = wfr.UUID
+		step.UUID = wfr.UUID
 
-		j, err := compiledStep.JSON()
+		j, err := step.JSON()
 		if err != nil {
 			log.Print(err)
 			wfr.Fail()
@@ -123,7 +123,7 @@ func (m MasterManager) Continue(uuid string) {
 			wfr.Fail()
 		}
 
-		wfr.Last = compiledStep.Name
+		wfr.Last = step.Name
 	}
 
 	m.datastore.DumpWorkflowRunner(wfr)

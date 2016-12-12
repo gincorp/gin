@@ -24,9 +24,7 @@ type Step struct {
 // Compile ...
 // Compile, in place, `Step.Context` entry templates with
 // state data from a WorkflowRunner
-func (s *Step) Compile(v map[string]interface{}) (*Step, error) {
-	var err error
-
+func (s *Step) Compile(v map[string]interface{}) (err error) {
 	for varKey, varValue := range s.Context {
 		var buf bytes.Buffer
 
@@ -34,7 +32,7 @@ func (s *Step) Compile(v map[string]interface{}) (*Step, error) {
 
 		err = tmpl.Execute(&buf, v)
 		if err != nil {
-			return s, err
+			return
 		}
 
 		s.Context[varKey] = buf.String()
