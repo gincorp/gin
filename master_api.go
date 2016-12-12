@@ -10,7 +10,8 @@ import (
 // StarterRequest ...
 // Placeholder for incoming 'start workflow' requests
 type StarterRequest struct {
-	Name string
+	Name      string
+	Variables map[string]interface{}
 }
 
 // StarterResponse ...
@@ -106,7 +107,7 @@ func (m MasterManager) getWF(uuid string) (wf interface{}) {
 }
 
 func (m MasterManager) startWF(s StarterRequest) (sr interface{}) {
-	uuid, err := m.Load(s.Name)
+	uuid, err := m.Load(s.Name, s.Variables)
 
 	if err != nil {
 		sr = ErrorResponse{err.Error()}

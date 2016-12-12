@@ -73,13 +73,15 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 
 // Load ...
 // Load a workflow from storage and create a WorkflowRunner state machine
-func (m MasterManager) Load(name string) (uuid string, err error) {
+func (m MasterManager) Load(name string, variables map[string]interface{}) (uuid string, err error) {
 	wf, err := m.datastore.LoadWorkflow(name)
 	if err != nil {
 		return
 	}
 
 	wfr := NewWorkflowRunner(wf)
+	wfr.Variables["Runtime"] = variables
+
 	wfr.Start()
 
 	m.datastore.DumpWorkflowRunner(wfr)
