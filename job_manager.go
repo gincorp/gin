@@ -55,6 +55,7 @@ func (j JobManager) Consume(body string) (output map[string]interface{}, err err
 
 	if err != nil {
 		output["Failed"] = true
+		output["ErrorMessage"] = err.Error()
 	}
 
 	format := "2006-01-02T15:04:05"
