@@ -47,10 +47,15 @@ func (j JobManager) Consume(body string) (output map[string]interface{}, err err
 
 	output["UUID"] = jn.UUID
 	output["Register"] = jn.Register
+	output["Failed"] = false
 
 	start := time.Now().UnixNano()
 	output["Data"], err = j.JobList[jn.Type](jn)
 	end := time.Now().UnixNano()
+
+	if err != nil {
+		output["Failed"] = true
+	}
 
 	output["Duration"] = fmt.Sprintf("%d ms", (end-start)/1000000)
 
