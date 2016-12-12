@@ -54,6 +54,12 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		}
 	}
 
+	if output["Failed"].(bool) {
+		wfr.Fail()
+		m.datastore.DumpWorkflowRunner(wfr)
+		return
+	}
+
 	m.datastore.DumpWorkflowRunner(wfr)
 	m.Continue(wfr.UUID)
 
