@@ -3,20 +3,25 @@ package main
 import (
 	"flag"
 	"log"
+
+	"github.com/jspc/workflow-engine/api"
+	"github.com/jspc/workflow-engine/node"
 )
 
 var (
 	amqpURI  *string
 	mode     *string
 	redisURI *string
-
-	node Node
+	host     *string
+	port     *int
 )
 
 func init() {
 	amqpURI = flag.String("amqp", "amqp://guest:guest@localhost:5671/", "URI to pass messages via")
 	redisURI = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
 	mode = flag.String("mode", "job", "mode with which to run")
+	host = flag.String("host", "0.0.0.0", "In api mode; host to bind to")
+	port = flag.Int("port", 8080, "In api mode; port to listen on")
 
 	flag.Parse()
 
@@ -28,13 +33,19 @@ func main() {
 
 	switch *mode {
 	case "job", "master":
-		node = NewNode(*amqpURI, *mode)
+		n := node.NewNode(*amqpURI, *redisURI, *mode)
 
-		go node.TaskManager.StartAPI()
-
-		if err := node.ConsumerLoop(); err != nil {
+		if err := n.ConsumerLoop(); err != nil {
 			log.Fatal(err)
 		}
+
+	case "api":
+		a, err := api.NewAPI(*amqpURI, *redisURI, *host, *port)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.Start()
 
 	default:
 		log.Fatalf("Do not recognise mode '%q'", *mode)
