@@ -1,23 +1,28 @@
-package main
+package taskmanager
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/jspc/workflow-engine/datastore"
+	"github.com/jspc/workflow-engine/workflow"
+
+	"github.com/fatih/structs"
 )
 
 // MasterManager ...
 // Container for Master Task manager configuration
 type MasterManager struct {
-	datastore Datastore
+	datastore datastore.Datastore
 }
 
 // NewMasterManager ...
 // Initialise and return a Master Task Manager
-func NewMasterManager() (m MasterManager) {
+func NewMasterManager(redisURI string) (m MasterManager) {
 	var err error
 
-	if m.datastore, err = NewDatastore(*redisURI); err != nil {
+	if m.datastore, err = datastore.NewDatastore(redisURI); err != nil {
 		log.Fatal(err)
 	}
 
@@ -29,7 +34,8 @@ func NewMasterManager() (m MasterManager) {
 // Parse messages, update Workflow contexts, write to database and call next step
 func (m MasterManager) Consume(body string) (output map[string]interface{}, err error) {
 	var b interface{}
-	var wfr WorkflowRunner
+	var uuid string
+	var wfr workflow.WorkflowRunner
 
 	if err = json.Unmarshal([]byte(body), &b); err != nil {
 		return
@@ -66,7 +72,11 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 	}
 
 	m.datastore.DumpWorkflowRunner(wfr)
-	m.Continue(wfr.UUID)
+
+	s, done := m.Continue(wfr.UUID)
+	if !done {
+		output = structs.Map(s)
+	}
 
 	return
 }
@@ -79,8 +89,12 @@ func (m MasterManager) Load(name string, variables map[string]interface{}) (uuid
 		return
 	}
 
-	wfr := NewWorkflowRunner(wf)
-	wfr.Variables["Runtime"] = variables
+	wfr := workflow.NewWorkflowRunner(u, wf)
+
+	switch variables.(type) {
+	case map[string]interface{}:
+		wfr.Variables["Runtime"] = variables
+	}
 
 	wfr.Start()
 
@@ -132,6 +146,6 @@ func (m MasterManager) Continue(uuid string) {
 	m.datastore.DumpWorkflowRunner(wfr)
 }
 
-func fmtError(step Step, err error) string {
+func fmtError(step workflow.Step, err error) string {
 	return fmt.Sprintf("%s: %s", step.Name, err.Error())
 }
