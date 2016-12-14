@@ -166,5 +166,5 @@ func (n *Node) Deliver(message interface{}) error {
         return err
     }
 
-    return n.Producer.send(j)
+    return n.Producer.Send(j)
 }

@@ -7,16 +7,14 @@ import (
     "github.com/streadway/amqp"
 )
 
-// Producer ...
-// Configuration for sending messages via rabbit MQ
+// Producer configuration for sending messages via rabbit MQ
 type Producer struct {
     exch string
     key  string
     uri  string
 }
 
-// NewProducer ...
-// Create configuration container *Producer
+// NewProducer creates configuration container *Producer
 func NewProducer(uri, key string) *Producer {
     exchangeName := "workflow.exchange"
 
@@ -29,7 +27,8 @@ func NewProducer(uri, key string) *Producer {
     return p
 }
 
-func (p *Producer) send(body []byte) error {
+// Send a payload via rabbit amqp
+func (p *Producer) Send(body []byte) error {
     connection, err := amqp.Dial(p.uri)
     if err != nil {
         return fmt.Errorf("Dial: %s", err)
