@@ -35,7 +35,7 @@ func NewMasterManager(redisURI string) (m MasterManager) {
 func (m MasterManager) Consume(body string) (output map[string]interface{}, err error) {
 	var b interface{}
 	var uuid string
-	var wfr workflow.WorkflowRunner
+	var wfr workflow.Runner
 
 	if err = json.Unmarshal([]byte(body), &b); err != nil {
 		return
@@ -104,7 +104,7 @@ func (m MasterManager) Load(u, name string, variables interface{}) (uuid string,
 		return
 	}
 
-	wfr := workflow.NewWorkflowRunner(u, wf)
+	wfr := workflow.NewRunner(u, wf)
 
 	switch variables.(type) {
 	case map[string]interface{}:
