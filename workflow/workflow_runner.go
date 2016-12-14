@@ -3,8 +3,6 @@ package workflow
 import (
     "encoding/json"
     "time"
-
-    "github.com/satori/go.uuid"
 )
 
 // WorkflowRunner ...
@@ -22,8 +20,8 @@ type WorkflowRunner struct {
 
 // NewWorkflowRunner ...
 // Initialise and Return a WorkflowRunner
-func NewWorkflowRunner(wf Workflow) (wfr WorkflowRunner) {
-    wfr.UUID = uuid.NewV4().String()
+func NewWorkflowRunner(uuid string, wf Workflow) (wfr WorkflowRunner) {
+    wfr.UUID = uuid
     wfr.Workflow = wf
     wfr.Variables = make(map[string]interface{})
     wfr.Variables["Defaults"] = wf.Variables
