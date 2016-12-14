@@ -25,7 +25,7 @@ var (
 
 // NewNode ...
 // Return a Node container
-func NewNode(uri, nodeMode string) (n Node) {
+func NewNode(uri, redisURI, nodeMode string) (n Node) {
     switch nodeMode {
     case "job":
         consumerKey = "job"
@@ -36,7 +36,7 @@ func NewNode(uri, nodeMode string) (n Node) {
         consumerKey = "master"
         producerKey = "job"
 
-        n.TaskManager = taskmanager.NewMasterManager()
+        n.TaskManager = taskmanager.NewMasterManager(redisURI)
     }
 
     c := NewConsumer(uri, consumerKey)
@@ -135,7 +135,7 @@ func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 
         }
 
-        if n.TaskManager.ShouldRespond() {
+        if len(output) > 0 {
             go func() {
                 log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
 
