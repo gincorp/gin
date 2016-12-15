@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,14 +11,12 @@ import (
 	"gopkg.in/redis.v5"
 )
 
-// Datastore ...
-// Provide interfaces into workflow and state storage
+// Datastore handles connections to and from datastores
 type Datastore struct {
 	db *redis.Client
 }
 
-// NewDatastore ...
-// Create and test a connection into storage
+// NewDatastore will create and test a connection into storage
 func NewDatastore(uri string) (d Datastore, err error) {
 	var opts *redis.Options
 
@@ -31,8 +30,7 @@ func NewDatastore(uri string) (d Datastore, err error) {
 	return
 }
 
-// LoadWorkflow ...
-// Return a Workflow object from a workflow name
+// LoadWorkflow returns a Workflow object from a workflow name
 func (d Datastore) LoadWorkflow(name string) (wf workflow.Workflow, err error) {
 	var config string
 
@@ -43,8 +41,27 @@ func (d Datastore) LoadWorkflow(name string) (wf workflow.Workflow, err error) {
 	return workflow.ParseWorkflow(config)
 }
 
-// LoadWorkflowRunner ...
-// Return a WorkflowRunner; a parsed and compiled workflow
+// SaveWorkflow saves a new workflow or overwrites an existing (if overwrite=true)
+func (d Datastore) SaveWorkflow(w workflow.Workflow, overwrite bool) error {
+	j, err := json.Marshal(w)
+	if err != nil {
+		return err
+	}
+
+	s, err := d.load(wfConfigName(w.Name))
+
+	if err != redis.Nil && err != nil {
+		return err
+	}
+
+	if s != "" && overwrite == false {
+		return errors.New(fmt.Sprintf("Refusing to overwrite workflow %q", w.Name))
+	}
+
+	return d.db.Set(wfConfigName(w.Name), j, 0).Err()
+}
+
+// LoadWorkflowRunner returns a WorkflowRunner; a parsed and compiled workflow
 // with a simple state machine
 func (d Datastore) LoadWorkflowRunner(uuid string) (wfr workflow.Runner, err error) {
 	var config string
@@ -56,8 +73,7 @@ func (d Datastore) LoadWorkflowRunner(uuid string) (wfr workflow.Runner, err err
 	return workflow.ParseRunner(config)
 }
 
-// DumpWorkflowRunner ...
-// Dump a running `WorkflowRunner`'s state to storage
+// DumpWorkflowRunner dumps a running `WorkflowRunner`'s state to storage
 func (d Datastore) DumpWorkflowRunner(wfr workflow.Runner) error {
 	j, err := json.Marshal(wfr)
 	if err != nil {

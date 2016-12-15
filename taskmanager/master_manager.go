@@ -144,9 +144,9 @@ func (m MasterManager) Continue(uuid string) (step workflow.Step, done bool) {
 		step.UUID = wfr.UUID
 
 		wfr.Last = step.Name
-		m.datastore.DumpWorkflowRunner(wfr)
-
 	}
+
+	m.datastore.DumpWorkflowRunner(wfr)
 	return step, done
 }
 
