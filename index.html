@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>Workflow-Engine by jspc</title>
+    <title>gin by gincorp by gincorp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -11,25 +11,25 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Workflow-Engine</h1>
+      <h1 class="project-name">gin by gincorp</h1>
       <h2 class="project-tagline">Distributed Workflow Tool</h2>
-      <a href="https://github.com/jspc/workflow-engine" class="btn">View on GitHub</a>
-      <a href="https://github.com/jspc/workflow-engine/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/jspc/workflow-engine/tarball/master" class="btn">Download .tar.gz</a>
+      <a href="https://github.com/gincorp/gin" class="btn">View on GitHub</a>
+      <a href="https://github.com/gincorp/gin/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/gincorp/gin/tarball/master" class="btn">Download .tar.gz</a>
     </section>
 
     <section class="main-content">
       <h1>
-<a id="workflow-engine" class="anchor" href="#workflow-engine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>workflow-engine</h1>
+<a id="gin" class="anchor" href="#gin" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>gin</h1>
 
-<p>workflow-engine is a simple distributed workflow engine, including task brokerage and staefulness, written in go.</p>
+<p>gin is a simple distributed workflow engine, including task brokerage and staefulness, written in go.</p>
 
-<p>It contains three components; of which there may be any number, above one, of instances:</p>
+<p>It contains three components; of which there may be a multitude of instances:</p>
 
 <ul>
-<li>Master Nodes</li>
-<li>Job Nodes</li>
-<li>API Nodes</li>
+<li>One or more master Nodes</li>
+<li>One or more job Nodes</li>
+<li>One or more API Nodes</li>
 </ul>
 
 <p>And a couple of dependencies:</p>
@@ -39,7 +39,9 @@
 <li>Redis</li>
 </ul>
 
-<p>A <code>workflow</code> is made up of <code>tasks</code> and <code>variables</code> and collated in a <code>runner</code> which stores state for out simple state machine to manage state with.</p>
+<p>A <code>workflow</code> is made up of <code>tasks</code> and <code>variables</code> and collated in a <code>runner</code> which stores state via a simple state machine.</p>
+
+<p>Master and Job nodes may be run right out of the box. Job nodes, however, come with very few configured jobs out the box and so it becomes simpler to create a project which initialises a JobManager object.</p>
 
 <table>
 <thead>
@@ -51,11 +53,11 @@
 <tbody>
 <tr>
 <td>dockerhub</td>
-<td><a href="https://hub.docker.com/r/jspc/workflow-engine/">https://hub.docker.com/r/jspc/workflow-engine/</a></td>
+<td><a href="https://hub.docker.com/r/gincorp/gin/">https://hub.docker.com/r/gincorp/gin/</a></td>
 </tr>
 <tr>
 <td>circleci</td>
-<td><a href="https://circleci.com/gh/jspc/workflow-engine">https://circleci.com/gh/jspc/workflow-engine</a></td>
+<td><a href="https://circleci.com/gh/gincorp/gin">https://circleci.com/gh/gincorp/gin</a></td>
 </tr>
 <tr>
 <td>licence</td>
@@ -69,12 +71,12 @@
 
 <p>Master nodes are run with:</p>
 
-<pre><code>$ workflow-engine -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
+<pre><code>$ gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
 </code></pre>
 
 <p>Or via docker:</p>
 
-<pre><code>$ docker run -p8080:8080 jspc/workflow-engine -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
+<pre><code>$ docker run -p8080:8080 jspc/gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
 </code></pre>
 
 <p>Master nodes compile and broker workflow tasks via a runner.</p>
@@ -84,12 +86,12 @@
 
 <p>Job nodes are run with:</p>
 
-<pre><code>$ workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost
+<pre><code>$ gin -mode job -amqp amqp://guest:guest@localhost/vhost
 </code></pre>
 
 <p>Or via docker:</p>
 
-<pre><code>$ docker run -p8080:8080 jspc/workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost
+<pre><code>$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost
 </code></pre>
 
 <p>Job nodes receive formatted tasks via rabbitmq, execute the task and return outputs and metadata.</p>
@@ -99,12 +101,12 @@
 
 <p>API nodes are run with:</p>
 
-<pre><code>$ workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
+<pre><code>$ gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
 </code></pre>
 
 <p>Or via docker:</p>
 
-<pre><code>$ docker run -p8080:8080 jspc/workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/ -host 0.0.0.0 -port 8080
+<pre><code>$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/ -host 0.0.0.0 -port 8080
 </code></pre>
 
 <p>API nodes provide an interface to the engine; for starting and configuring workflows.</p>
@@ -114,7 +116,7 @@
 <h2>
 <a id="architecture" class="anchor" href="#architecture" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Architecture</h2>
 
-<p><img src="img/workflow-engine.png" alt="naive workflow-engine architecture diagram"></p>
+<p><img src="img/gin.png" alt="naive gin architecture diagram"></p>
 
 <h2>
 <a id="workflows" class="anchor" href="#workflows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Workflows</h2>
@@ -249,7 +251,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</p>
 
       <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/jspc/workflow-engine">Workflow-Engine</a> is maintained by <a href="https://github.com/jspc">jspc</a>.</span>
+        <span class="site-footer-owner"><a href="https://github.com/gincorp/gin">gin by gincorp</a> is maintained by <a href="https://github.com/gincorp">gincorp</a>.</span>
 
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
