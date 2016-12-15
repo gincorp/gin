@@ -41,12 +41,12 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		return
 	}
 
-	output = b.(map[string]interface{})
+	input := b.(map[string]interface{})
 
-	if output["InitWorkflow"] != nil {
-		req := output["InitWorkflow"].(map[string]interface{})
+	if input["InitWorkflow"] != nil {
+		req := input["InitWorkflow"].(map[string]interface{})
 
-		uuid, err = m.Load(output["UUID"].(string), req["Name"].(string), req["Variables"])
+		uuid, err = m.Load(input["UUID"].(string), req["Name"].(string), req["Variables"])
 		if err != nil {
 			return
 		}
@@ -56,30 +56,30 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		}
 
 	} else {
-		uuid = output["UUID"].(string)
+		uuid = input["UUID"].(string)
 		if wfr, err = m.datastore.LoadWorkflowRunner(uuid); err != nil {
 			return
 		}
 
 		idx, step := wfr.Current()
-		step.SetStatus(output)
+		step.SetStatus(input)
 		wfr.Workflow.Steps[idx] = step
 
-		switch output["Register"].(type) {
+		switch input["Register"].(type) {
 		case string:
-			register := output["Register"].(string)
+			register := input["Register"].(string)
 
-			switch output["Data"].(type) {
+			switch input["Data"].(type) {
 			case map[string]interface{}:
-				data := output["Data"].(map[string]interface{})
+				data := input["Data"].(map[string]interface{})
 				wfr.Variables[register] = data
 
 			default:
-				log.Println("Not registering output: got garbage back")
+				log.Println("Not registering input: got garbage back")
 			}
 		}
 
-		if output["Failed"].(bool) {
+		if input["Failed"].(bool) {
 			wfr.Fail(fmt.Sprintf("Step %q failed. See below", wfr.Last))
 			m.datastore.DumpWorkflowRunner(wfr)
 			return
