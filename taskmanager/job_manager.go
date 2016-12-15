@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// JobManager ...
-// Job configuration
+// JobManager contains configuration for Job Task Managers
 type JobManager struct {
 	// Map job aliases to functions providing that job.
 	// Jobs receive a notification providing data from the queue and return
@@ -16,8 +15,7 @@ type JobManager struct {
 	JobList map[string]func(JobNotification) (map[string]interface{}, error)
 }
 
-// JobNotification ...
-// Data container for Unmarshal'd json from the message queue
+// JobNotification is a container for Unmarshal'd json from the message queue
 type JobNotification struct {
 	Context  map[string]string
 	Name     string
@@ -26,20 +24,24 @@ type JobNotification struct {
 	UUID     string
 }
 
-// NewJobManager ...
-// Return a `JobManager` to route jobs fromt the queue
+// NewJobManager returns a `JobManager` to route jobs from the queue
 func NewJobManager() (j JobManager) {
 	j.JobList = make(map[string]func(JobNotification) (map[string]interface{}, error))
-	j.JobList["post-to-web"] = doWebCall
-	j.JobList["get-from-web"] = doWebCall
-	j.JobList["log"] = logOutput
+
+	j.AddJob("post-to-web", doWebCall)
+	j.AddJob("get-from-web", doWebCall)
+	j.AddJob("log", logOutput)
 
 	return
 }
 
-// Consume ...
-// Handle json from the message queue. Format it correctly, route the job, and
-// return output and metadata
+// AddJob updates j.JobList with the key 'key' with the value of a function to call
+func (j *JobManager) AddJob(key string, f func(JobNotification) (map[string]interface{}, error)) {
+	j.JobList[key] = f
+}
+
+// Consume handles json from the message queue. It formats it correctly,
+// route the job, and returns output and metadata
 func (j JobManager) Consume(body string) (output map[string]interface{}, err error) {
 	jn := j.parseBody(body)
 
