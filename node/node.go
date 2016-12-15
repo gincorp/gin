@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jspc/workflow-engine/taskmanager"
+	"github.com/gincorp/gin/taskmanager"
 	"github.com/streadway/amqp"
 )
 

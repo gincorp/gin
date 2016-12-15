@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jspc/workflow-engine/datastore"
-	"github.com/jspc/workflow-engine/workflow"
+	"github.com/gincorp/gin/datastore"
+	"github.com/gincorp/gin/workflow"
 
 	"github.com/fatih/structs"
 )

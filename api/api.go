@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jspc/workflow-engine/datastore"
-	"github.com/jspc/workflow-engine/node"
+	"github.com/gincorp/gin/datastore"
+	"github.com/gincorp/gin/node"
 )
 
 // StarterRequest is a placeholder for incoming 'start workflow' requests

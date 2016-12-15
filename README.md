@@ -1,25 +1,27 @@
-workflow-engine
+gin
 ==
 
-workflow-engine is a simple distributed workflow engine, including task brokerage and staefulness, written in go.
+gin is a simple distributed workflow engine, including task brokerage and staefulness, written in go.
 
-It contains three components; of which there may be any number, above one, of instances:
+It contains three components; of which there may be a multitude of instances:
 
-* Master Nodes
-* Job Nodes
-* API Nodes
+* One or more master Nodes
+* One or more job Nodes
+* One or more API Nodes
 
 And a couple of dependencies:
 
 * RabbitMQ
 * Redis
 
-A `workflow` is made up of `tasks` and `variables` and collated in a `runner` which stores state for out simple state machine to manage state with.
+A `workflow` is made up of `tasks` and `variables` and collated in a `runner` which stores state via a simple state machine.
+
+Master and Job nodes may be run right out of the box. Job nodes, however, come with very few configured jobs out the box and so it becomes simpler to create a project which initialises a JobManager object.
 
 | who       | what |
 |-----------|------|
-| dockerhub | https://hub.docker.com/r/jspc/workflow-engine/   |
-| circleci  | https://circleci.com/gh/jspc/workflow-engine   |
+| dockerhub | https://hub.docker.com/r/gincorp/gin/   |
+| circleci  | https://circleci.com/gh/gincorp/gin   |
 | licence   | MIT   |
 
 
@@ -30,13 +32,13 @@ Master Nodes
 Master nodes are run with:
 
 ```
-$ workflow-engine -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
+$ gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
 ```
 
 Or via docker:
 
 ```
-$ docker run -p8080:8080 jspc/workflow-engine -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
+$ docker run -p8080:8080 jspc/gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
 ```
 
 Master nodes compile and broker workflow tasks via a runner.
@@ -47,13 +49,13 @@ Job Nodes
 Job nodes are run with:
 
 ```
-$ workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost
+$ gin -mode job -amqp amqp://guest:guest@localhost/vhost
 ```
 
 Or via docker:
 
 ```
-$ docker run -p8080:8080 jspc/workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost
+$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost
 ```
 
 Job nodes receive formatted tasks via rabbitmq, execute the task and return outputs and metadata.
@@ -64,13 +66,13 @@ API Nodes
 API nodes are run with:
 
 ```
-$ workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
+$ gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
 ```
 
 Or via docker:
 
 ```
-$ docker run -p8080:8080 jspc/workflow-engine -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/ -host 0.0.0.0 -port 8080
+$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/ -host 0.0.0.0 -port 8080
 ```
 
 API nodes provide an interface to the engine; for starting and configuring workflows.
@@ -81,7 +83,7 @@ API nodes provide an interface to the engine; for starting and configuring workf
 Architecture
 --
 
-![naive workflow-engine architecture diagram](img/workflow-engine.png)
+![naive gin architecture diagram](img/gin.png)
 
 
 Workflows
