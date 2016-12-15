@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jspc/workflow-engine/workflow"
+	"github.com/gincorp/gin/workflow"
 
 	"gopkg.in/redis.v5"
 )

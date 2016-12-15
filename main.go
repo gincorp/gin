@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/jspc/workflow-engine/api"
-	"github.com/jspc/workflow-engine/node"
+	"github.com/gincorp/gin/api"
+	"github.com/gincorp/gin/node"
 )
 
 var (
