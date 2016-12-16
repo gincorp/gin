@@ -83,7 +83,7 @@ API nodes provide an interface to the engine; for starting and configuring workf
 Architecture
 --
 
-![naive gin architecture diagram](img/gin.png)
+![naive gin architecture diagram](img/workflow-engine.png)
 
 
 Workflows
