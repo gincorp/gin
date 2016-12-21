@@ -4,8 +4,7 @@ import (
 	"os"
 )
 
-// Mon ...
-// Monitoring/ Metadata container
+// Mon is a container of Monitoring/ Metadata for json marshaling
 type Mon struct {
 	// Job node's hostname
 	Hostname            string
@@ -13,8 +12,7 @@ type Mon struct {
 	UTF8                string
 }
 
-// NewMon ...
-// Initialise and return a `Mon`,
+// NewMon initialises and returns a `Mon`,
 // containing monitoring and metadata
 func NewMon() (m Mon) {
 	h, err := os.Hostname()
