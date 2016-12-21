@@ -64,7 +64,7 @@ func (d Datastore) SaveWorkflow(w workflow.Workflow, overwrite bool) error {
 		return errors.New(fmt.Sprintf("Refusing to overwrite workflow %q", w.Name))
 	}
 
-	return d.db.Set(wfConfigName(w.Name), j, 0).Err()
+	return d.save(wfConfigName(w.Name), j)
 }
 
 // LoadWorkflowRunner returns a WorkflowRunner; a parsed and compiled workflow
@@ -86,7 +86,7 @@ func (d Datastore) DumpWorkflowRunner(wfr workflow.Runner) error {
 		return err
 	}
 
-	return d.db.Set(wfStateName(wfr.UUID), j, 0).Err()
+	return d.save(wfStateName(wfr.UUID), j)
 }
 
 func (d Datastore) load(key string) (string, error) {
@@ -95,6 +95,14 @@ func (d Datastore) load(key string) (string, error) {
 	}
 
 	return "", errors.New("datastore connection has gone away")
+}
+
+func (d Datastore) save(key string, json []byte) error {
+	if d.valid() {
+		return d.db.Set(key, json, 0).Err()
+	}
+
+	return errors.New("datastore connection has gone away")
 }
 
 func (d Datastore) valid() bool {
