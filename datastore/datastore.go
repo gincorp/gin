@@ -5,15 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gincorp/gin/workflow"
 
 	"gopkg.in/redis.v5"
 )
 
+// Test helper
+type connector interface {
+	Get(string) *redis.StringCmd
+	Set(string, interface{}, time.Duration) *redis.StatusCmd
+	Ping() *redis.StatusCmd
+}
+
 // Datastore handles connections to and from datastores
 type Datastore struct {
-	db *redis.Client
+	db connector
 }
 
 // NewDatastore will create and test a connection into storage
