@@ -25,8 +25,6 @@ func NewDatastore(uri string) (d Datastore, err error) {
 	}
 
 	d.db = redis.NewClient(opts)
-
-	_, err = d.db.Ping().Result()
 	return
 }
 
@@ -84,7 +82,16 @@ func (d Datastore) DumpWorkflowRunner(wfr workflow.Runner) error {
 }
 
 func (d Datastore) load(key string) (string, error) {
-	return d.db.Get(key).Result()
+	if d.valid() {
+		return d.db.Get(key).Result()
+	}
+
+	return "", errors.New("datastore connection has gone away")
+}
+
+func (d Datastore) valid() bool {
+	_, err := d.db.Ping().Result()
+	return err == nil
 }
 
 func normaliseName(wfName string) string {
