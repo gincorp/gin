@@ -29,6 +29,9 @@ func NewRunner(uuid string, wf Workflow) (wfr Runner) {
 
 // ParseRunner returns a parsed Runner from a string
 func ParseRunner(data string) (wfr Runner, err error) {
+	if data == "" {
+		return
+	}
 	err = json.Unmarshal([]byte(data), &wfr)
 
 	return
