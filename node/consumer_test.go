@@ -1,66 +1,74 @@
 package node
 
 import (
-	"reflect"
 	"testing"
+)
 
-	"github.com/streadway/amqp"
+var (
+	uri = "amqp://guest:guest@localhost/vhost"
+	key = "testkey"
 )
 
 func TestNewConsumer(t *testing.T) {
-	type args struct {
-		uri string
-		key string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *Consumer
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewConsumer(tt.args.uri, tt.args.key); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewConsumer() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	var c interface{}
+
+	t.Run("Initialises and returns a Consumer", func(t *testing.T) {
+		c = NewConsumer(uri, key)
+
+		switch c.(type) {
+		case *Consumer:
+		default:
+			t.Errorf("NewConsumer() error = Received %T, expected Consumer", c)
+		}
+	})
 }
 
-func TestConsumer_Shutdown(t *testing.T) {
-	type fields struct {
-		channel *amqp.Channel
-		conn    *amqp.Connection
-		done    chan error
-		exch    string
-		key     string
-		queue   string
-		tag     string
-		uri     string
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &Consumer{
-				channel: tt.fields.channel,
-				conn:    tt.fields.conn,
-				done:    tt.fields.done,
-				exch:    tt.fields.exch,
-				key:     tt.fields.key,
-				queue:   tt.fields.queue,
-				tag:     tt.fields.tag,
-				uri:     tt.fields.uri,
-			}
-			if err := c.Shutdown(); (err != nil) != tt.wantErr {
-				t.Errorf("Consumer.Shutdown() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+func TestNewConsumer_Exch(t *testing.T) {
+	t.Run("Initialises with the correct exchange", func(t *testing.T) {
+		c := NewConsumer(uri, key)
+
+		if c.exch != "workflow.exchange" {
+			t.Errorf("NewConsumer().exch = %q, want 'workflow.exchange'", c.exch)
+		}
+	})
+}
+
+func TestNewConsumer_Key(t *testing.T) {
+	t.Run("Initialises with the correct routing key", func(t *testing.T) {
+		c := NewConsumer(uri, key)
+
+		if c.key != key {
+			t.Errorf("NewConsumer().key = %q, want %q", c.key, key)
+		}
+	})
+}
+
+func TestNewConsumer_Queue(t *testing.T) {
+	t.Run("Initialises with the correct queue name", func(t *testing.T) {
+		c := NewConsumer(uri, key)
+
+		if c.queue != key {
+			t.Errorf("NewConsumer().queue = %q, want %q", c.queue, key)
+		}
+	})
+}
+
+func TestNewConsumer_Tag(t *testing.T) {
+	t.Run("Initialises with the correct tag name", func(t *testing.T) {
+		c := NewConsumer(uri, key)
+
+		if c.tag != key {
+			t.Errorf("NewConsumer().tag = %q, want %q", c.tag, key)
+		}
+	})
+}
+
+func TestNewConsumer_URI(t *testing.T) {
+	t.Run("Initialises with the correct uri", func(t *testing.T) {
+		c := NewConsumer(uri, key)
+
+		if c.uri != uri {
+			t.Errorf("NewConsumer().uri = %q, want %q", c.uri, uri)
+		}
+	})
 }
