@@ -16,6 +16,10 @@ type Workflow struct {
 // ParseWorkflow ...
 // Return a Workflow from a textual representation from storage
 func ParseWorkflow(data string) (w Workflow, err error) {
+	if data == "" {
+		return
+	}
+
 	err = json.Unmarshal([]byte(data), &w)
 
 	return

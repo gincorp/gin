@@ -5,15 +5,23 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gincorp/gin/workflow"
 
 	"gopkg.in/redis.v5"
 )
 
+// Test helper
+type connector interface {
+	Get(string) *redis.StringCmd
+	Set(string, interface{}, time.Duration) *redis.StatusCmd
+	Ping() *redis.StatusCmd
+}
+
 // Datastore handles connections to and from datastores
 type Datastore struct {
-	db *redis.Client
+	db connector
 }
 
 // NewDatastore will create and test a connection into storage
@@ -25,8 +33,6 @@ func NewDatastore(uri string) (d Datastore, err error) {
 	}
 
 	d.db = redis.NewClient(opts)
-
-	_, err = d.db.Ping().Result()
 	return
 }
 
@@ -58,7 +64,7 @@ func (d Datastore) SaveWorkflow(w workflow.Workflow, overwrite bool) error {
 		return errors.New(fmt.Sprintf("Refusing to overwrite workflow %q", w.Name))
 	}
 
-	return d.db.Set(wfConfigName(w.Name), j, 0).Err()
+	return d.save(wfConfigName(w.Name), j)
 }
 
 // LoadWorkflowRunner returns a WorkflowRunner; a parsed and compiled workflow
@@ -80,11 +86,28 @@ func (d Datastore) DumpWorkflowRunner(wfr workflow.Runner) error {
 		return err
 	}
 
-	return d.db.Set(wfStateName(wfr.UUID), j, 0).Err()
+	return d.save(wfStateName(wfr.UUID), j)
 }
 
 func (d Datastore) load(key string) (string, error) {
-	return d.db.Get(key).Result()
+	if d.valid() {
+		return d.db.Get(key).Result()
+	}
+
+	return "", errors.New("datastore connection has gone away")
+}
+
+func (d Datastore) save(key string, json []byte) error {
+	if d.valid() {
+		return d.db.Set(key, json, 0).Err()
+	}
+
+	return errors.New("datastore connection has gone away")
+}
+
+func (d Datastore) valid() bool {
+	_, err := d.db.Ping().Result()
+	return err == nil
 }
 
 func normaliseName(wfName string) string {

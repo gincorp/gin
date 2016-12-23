@@ -29,6 +29,9 @@ func NewRunner(uuid string, wf Workflow) (wfr Runner) {
 
 // ParseRunner returns a parsed Runner from a string
 func ParseRunner(data string) (wfr Runner, err error) {
+	if data == "" {
+		return
+	}
 	err = json.Unmarshal([]byte(data), &wfr)
 
 	return
@@ -44,6 +47,10 @@ func (wfr *Runner) Start() {
 func (wfr *Runner) Next() (s Step, done bool) {
 	var idx int
 	wfr.State = "running"
+
+	if len(wfr.Workflow.Steps) == 0 {
+		return s, true
+	}
 
 	if wfr.Last == "" {
 		return wfr.Workflow.Steps[0], false
@@ -71,7 +78,7 @@ func (wfr *Runner) Current() (i int, s Step) {
 		}
 	}
 
-	return
+	return 0, wfr.Workflow.Steps[0]
 }
 
 // Fail will set state to "failed" and end the workflow runner

@@ -9,7 +9,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-// Node ...
+// Node creates a Node.
 // Nodes are the powerhouse of the tool; they receive messages
 // from RabbitMQ (*Consumer), push messages into RabbitMQ (*Producer)
 // and handle what those individual messages are (TaskManager)
@@ -23,8 +23,7 @@ var (
 	consumerKey, producerKey string
 )
 
-// NewNode ...
-// Return a Node container
+// NewNode returns a Node container
 func NewNode(uri, redisURI, nodeMode string) (n Node) {
 	switch nodeMode {
 	case "job":
@@ -48,8 +47,7 @@ func NewNode(uri, redisURI, nodeMode string) (n Node) {
 	return
 }
 
-// ConsumerLoop ...
-// Connect to RabbitMQ based on a *Consumer and route messages
+// ConsumerLoop connects to RabbitMQ based on a *Consumer and route messages
 func (n *Node) ConsumerLoop() (err error) {
 	if n.Consumer.conn, err = amqp.Dial(n.Consumer.uri); err != nil {
 		return fmt.Errorf("Dial: %s", err)
@@ -117,15 +115,14 @@ func (n *Node) ConsumerLoop() (err error) {
 		return fmt.Errorf("Queue Consume: %s", err)
 	}
 
-	go n.Consume(deliveries, n.Consumer.done)
+	go n.consume(deliveries, n.Consumer.done)
 
 	select {}
 }
 
-// Consume ...
-// Consume messages off a channel provided by `Node.ConsumerLoop`
+// Consume consumes messages off a channel provided by `Node.ConsumerLoop`
 // This function blocks on tasks, but not when delivering
-func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
+func (n *Node) consume(deliveries <-chan amqp.Delivery, done chan error) {
 	for d := range deliveries {
 		log.Printf("[%v] : %q received %q", d.DeliveryTag, n.Consumer.queue, d.Body)
 
@@ -139,7 +136,7 @@ func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 			go func() {
 				log.Printf("[%v] : responding with %q", d.DeliveryTag, output)
 
-				if err := n.Deliver(output); err != nil {
+				if err := n.deliver(output); err != nil {
 					log.Printf("[%v] : response errored: %q", d.DeliveryTag, err)
 
 					d.Ack(false)
@@ -157,9 +154,8 @@ func (n *Node) Consume(deliveries <-chan amqp.Delivery, done chan error) {
 	done <- nil
 }
 
-// Deliver ...
-// Turn a message into json and use a producer to send it
-func (n *Node) Deliver(message interface{}) error {
+// Deliver turns a message into json and use a producer to send it
+func (n *Node) deliver(message interface{}) error {
 	j, err := json.Marshal(message)
 
 	if err != nil {
