@@ -50,7 +50,7 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 	if input["InitWorkflow"] != nil {
 		req := input["InitWorkflow"].(map[string]interface{})
 
-		uuid, err = m.Load(input["UUID"].(string), req["Name"].(string), req["Variables"])
+		uuid, err = m.load(input["UUID"].(string), req["Name"].(string), req["Variables"])
 		if err != nil {
 			return
 		}
@@ -66,6 +66,7 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 		}
 
 		idx, step := wfr.Current()
+
 		step.SetStatus(input)
 		wfr.Workflow.Steps[idx] = step
 
@@ -93,7 +94,7 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 
 	m.datastore.DumpWorkflowRunner(wfr)
 
-	s, done := m.Continue(wfr.UUID)
+	s, done := m.proceed(wfr.UUID)
 	if !done {
 		output = structs.Map(s)
 	}
@@ -101,8 +102,8 @@ func (m MasterManager) Consume(body string) (output map[string]interface{}, err 
 	return
 }
 
-// Load a workflow from storage and create a WorkflowRunner state machine
-func (m MasterManager) Load(u, name string, variables interface{}) (uuid string, err error) {
+// load a workflow from storage and create a WorkflowRunner state machine
+func (m MasterManager) load(u, name string, variables interface{}) (uuid string, err error) {
 	wf, err := m.datastore.LoadWorkflow(name)
 	if err != nil {
 		return
@@ -122,10 +123,10 @@ func (m MasterManager) Load(u, name string, variables interface{}) (uuid string,
 	return wfr.UUID, nil
 }
 
-// Continue will, should there be a next step in the workflow, compile step templates
+// proceed will, should there be a next step in the workflow, compile step templates
 // and push the step to the emssage queue. Otherwise it'll set the relevant Workflow Runner
 // to completed.
-func (m MasterManager) Continue(uuid string) (step workflow.Step, done bool) {
+func (m MasterManager) proceed(uuid string) (step workflow.Step, done bool) {
 	wfr, err := m.datastore.LoadWorkflowRunner(uuid)
 	if err != nil {
 		log.Print(err)
