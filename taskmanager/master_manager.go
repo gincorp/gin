@@ -11,10 +11,16 @@ import (
 	"github.com/fatih/structs"
 )
 
-// MasterManager ...
-// Container for Master Task manager configuration
+// DataStore provides access to workflows, runners and so on
+type DataStore interface {
+	LoadWorkflowRunner(string) (workflow.Runner, error)
+	DumpWorkflowRunner(workflow.Runner) error
+	LoadWorkflow(string) (workflow.Workflow, error)
+}
+
+// MasterManager is a container for Master Taskmanager configuration
 type MasterManager struct {
-	datastore datastore.Datastore
+	datastore DataStore
 }
 
 // NewMasterManager ...
