@@ -48,6 +48,10 @@ func (wfr *Runner) Next() (s Step, done bool) {
 	var idx int
 	wfr.State = "running"
 
+	if len(wfr.Workflow.Steps) == 0 {
+		return s, true
+	}
+
 	if wfr.Last == "" {
 		return wfr.Workflow.Steps[0], false
 	}
@@ -74,7 +78,7 @@ func (wfr *Runner) Current() (i int, s Step) {
 		}
 	}
 
-	return
+	return 0, wfr.Workflow.Steps[0]
 }
 
 // Fail will set state to "failed" and end the workflow runner
