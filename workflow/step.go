@@ -6,8 +6,7 @@ import (
 	"text/template"
 )
 
-// Step ...
-// Step configuration container
+// Step is a state container containing data per step
 type Step struct {
 	Context      map[string]string
 	Duration     string
@@ -21,8 +20,7 @@ type Step struct {
 	UUID         string
 }
 
-// Compile ...
-// Compile, in place, `Step.Context` entry templates with
+// Compile with compile, in place, `Step.Context` entry templates with
 // state data from a WorkflowRunner
 func (s *Step) Compile(v map[string]interface{}) (err error) {
 	for varKey, varValue := range s.Context {
@@ -54,7 +52,6 @@ func (s *Step) SetStatus(m map[string]interface{}) {
 	}
 }
 
-// JSON ...
 // JSON representation of a `Step`
 func (s *Step) JSON() (j []byte, err error) {
 	return json.Marshal(s)
