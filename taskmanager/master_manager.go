@@ -23,8 +23,7 @@ type MasterManager struct {
 	datastore DataStore
 }
 
-// NewMasterManager ...
-// Initialise and return a Master Task Manager
+// NewMasterManager returns an initialised Master Taskmanager
 func NewMasterManager(redisURI string) (m MasterManager) {
 	var err error
 
@@ -35,8 +34,7 @@ func NewMasterManager(redisURI string) (m MasterManager) {
 	return
 }
 
-// Consume ...
-// Handle json from the message queue; for a Master node these will be responses.
+// Consume handles json from the message queue; for a Master node these will be responses.
 // Parse messages, update Workflow contexts, write to database and call next step
 func (m MasterManager) Consume(body string) (output map[string]interface{}, err error) {
 	var b interface{}
