@@ -80,7 +80,7 @@ func TestStep_SetStatus(t *testing.T) {
 
 		t.Run(fmt.Sprintf("%s - Failed", tt.name), func(t *testing.T) {
 			if s.Failed != data["Failed"] {
-				t.Errorf("Step.SetStatus().Failed = %q, expected %q", s.Duration, data["Failed"].(bool))
+				t.Errorf("Step.SetStatus().Failed = %v, expected %v", s.Duration, data["Failed"].(bool))
 			}
 		})
 
