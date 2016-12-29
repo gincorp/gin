@@ -82,7 +82,7 @@ func TestJobManager_Consume(t *testing.T) {
 
 	t.Run("returned job data has the correct Failed state", func(t *testing.T) {
 		if o["Failed"].(bool) != false {
-			t.Errorf("Consume()[failed] error = received %b, expected false", o["Failed"].(bool))
+			t.Errorf("Consume()[failed] error = received %v, expected false", o["Failed"].(bool))
 		}
 	})
 
