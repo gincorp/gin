@@ -64,7 +64,7 @@ func TestJobManager_Consume(t *testing.T) {
 
 	t.Run("consumes and runs a job", func(t *testing.T) {
 		if err != nil {
-			t.Errorf("Consume() error = %V", err)
+			t.Errorf("Consume() error = %v", err)
 		}
 	})
 

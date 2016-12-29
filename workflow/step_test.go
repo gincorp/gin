@@ -29,7 +29,7 @@ func TestStep_Compile(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Step.Compile() error = %V, wantErr %V", err, tt.wantErr)
+				t.Errorf("Step.Compile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 
@@ -55,7 +55,7 @@ func TestStep_SetStatus(t *testing.T) {
 			"Start":        "some-timestamp",
 			"End":          "another-timestamp",
 			"Failed":       tt.error,
-			"ErrorMessage": "an error occured",
+			"ErrorMessage": "an error occurred",
 		}
 		s := Step{}
 		s.SetStatus(data)
@@ -80,7 +80,7 @@ func TestStep_SetStatus(t *testing.T) {
 
 		t.Run(fmt.Sprintf("%s - Failed", tt.name), func(t *testing.T) {
 			if s.Failed != data["Failed"] {
-				t.Errorf("Step.SetStatus().Failed = %q, expected %q", s.Duration, data["Failed"].(bool))
+				t.Errorf("Step.SetStatus().Failed = %v, expected %v", s.Duration, data["Failed"].(bool))
 			}
 		})
 
