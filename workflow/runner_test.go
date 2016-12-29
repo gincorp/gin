@@ -8,8 +8,8 @@ import (
 func TestNewRunner(t *testing.T) {
 	uuid := "some-uuid"
 
-	varsWF := Workflow{"Some workflow", []Step{Step{Name: "a-step", Type: "none", Context: map[string]string{}}}, map[string]string{"a": "b"}}
-	noVarsWF := Workflow{"Some workflow", []Step{Step{Name: "a-step", Type: "none", Context: map[string]string{}}}, map[string]string{}}
+	varsWF := Workflow{"Some workflow", []Step{{Name: "a-step", Type: "none", Context: map[string]string{}}}, map[string]string{"a": "b"}}
+	noVarsWF := Workflow{"Some workflow", []Step{{Name: "a-step", Type: "none", Context: map[string]string{}}}, map[string]string{}}
 
 	type args struct {
 		uuid string
@@ -103,7 +103,7 @@ func TestParseRunner(t *testing.T) {
 }
 
 func TestRunner_Next(t *testing.T) {
-	wf := Workflow{"Some workflow", []Step{Step{Name: "a step", Type: "none"}, Step{Name: "final step", Type: "none"}}, map[string]string{}}
+	wf := Workflow{"Some workflow", []Step{{Name: "a step", Type: "none"}, {Name: "final step", Type: "none"}}, map[string]string{}}
 
 	type fields struct {
 		Last     string
@@ -141,7 +141,7 @@ func TestRunner_Next(t *testing.T) {
 }
 
 func TestRunner_Current(t *testing.T) {
-	wf := Workflow{"Some workflow", []Step{Step{Name: "a step", Type: "none"}, Step{Name: "final step", Type: "none"}}, map[string]string{}}
+	wf := Workflow{"Some workflow", []Step{{Name: "a step", Type: "none"}, {Name: "final step", Type: "none"}}, map[string]string{}}
 
 	type fields struct {
 		Last     string
