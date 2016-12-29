@@ -55,7 +55,7 @@ func TestStep_SetStatus(t *testing.T) {
 			"Start":        "some-timestamp",
 			"End":          "another-timestamp",
 			"Failed":       tt.error,
-			"ErrorMessage": "an error occured",
+			"ErrorMessage": "an error occurred",
 		}
 		s := Step{}
 		s.SetStatus(data)
