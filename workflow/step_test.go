@@ -60,32 +60,32 @@ func TestStep_SetStatus(t *testing.T) {
 		s := Step{}
 		s.SetStatus(data)
 
-		t.Run(fmt.Sprint("%s - Duration", tt.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s - Duration", tt.name), func(t *testing.T) {
 			if s.Duration != data["Duration"] {
 				t.Errorf("Step.SetStatus().Duration = %q, expected %q", s.Duration, data["Duration"].(string))
 			}
 		})
 
-		t.Run(fmt.Sprint("%s - Start", tt.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s - Start", tt.name), func(t *testing.T) {
 			if s.Start != data["Start"] {
 				t.Errorf("Step.SetStatus().Start = %q, expected %q", s.Start, data["Start"].(string))
 			}
 		})
 
-		t.Run(fmt.Sprint("%s - End", tt.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s - End", tt.name), func(t *testing.T) {
 			if s.End != data["End"] {
 				t.Errorf("Step.SetStatus().End = %q, expected %q", s.End, data["End"].(string))
 			}
 		})
 
-		t.Run(fmt.Sprint("%s - Failed", tt.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s - Failed", tt.name), func(t *testing.T) {
 			if s.Failed != data["Failed"] {
 				t.Errorf("Step.SetStatus().Failed = %q, expected %q", s.Duration, data["Failed"].(bool))
 			}
 		})
 
 		if data["Failed"].(bool) {
-			t.Run(fmt.Sprint("%s - ErrorMessage", tt.name), func(t *testing.T) {
+			t.Run(fmt.Sprintf("%s - ErrorMessage", tt.name), func(t *testing.T) {
 				if s.ErrorMessage != data["ErrorMessage"] {
 					t.Errorf("Step.SetStatus().ErrorMessage = %q, expected %q", s.Duration, data["ErrorMessage"].(string))
 				}
