@@ -43,14 +43,14 @@ func TestNewRunner(t *testing.T) {
 
 		t.Run(fmt.Sprintf("%s - Variables", tt.name), func(t *testing.T) {
 			if _, ok := r.(Runner).Variables["Defaults"]; !ok {
-				t.Errorf("NewRunner() Variables error: expected key Defaults, got %V", r.(Runner).Variables)
+				t.Errorf("NewRunner() Variables error: expected key Defaults, got %v", r.(Runner).Variables)
 			}
 		})
 
 		if tt.hasVars {
 			t.Run(fmt.Sprintf("%s - vars", tt.name), func(t *testing.T) {
 				if _, ok := r.(Runner).Variables["Defaults"].(map[string]string)["a"]; !ok {
-					t.Errorf("NewRunner() Default -> Variables error: expected key 'a', got %V", r.(Runner).Variables["Defaults"])
+					t.Errorf("NewRunner() Default -> Variables error: expected key 'a', got %v", r.(Runner).Variables["Defaults"])
 				}
 			})
 		}
@@ -175,13 +175,13 @@ func TestRunner_End(t *testing.T) {
 	wfr := &Runner{}
 	t.Run("set end state", func(t *testing.T) {
 		if wfr.State == "ended" {
-			t.Errorf("Runner.End() error: step already set to ended, %V", wfr)
+			t.Errorf("Runner.End() error: step already set to ended, %v", wfr)
 		}
 
 		wfr.End()
 
 		if wfr.State != "ended" {
-			t.Errorf("Runner.End() state change did not persist to ended, %V", wfr)
+			t.Errorf("Runner.End() state change did not persist to ended, %v", wfr)
 		}
 	})
 }
@@ -192,17 +192,17 @@ func TestRunner_Fail(t *testing.T) {
 
 	t.Run("set fail state", func(t *testing.T) {
 		if wfr.State == "failed" {
-			t.Errorf("Runner.Fail() error: step already set to failed, %V", wfr)
+			t.Errorf("Runner.Fail() error: step already set to failed, %v", wfr)
 		}
 
 		wfr.Fail(failMsg)
 
 		if wfr.State != "failed" {
-			t.Errorf("Runner.Fail() state change did not persist to failed, %V", wfr)
+			t.Errorf("Runner.Fail() state change did not persist to failed, %v", wfr)
 		}
 
 		if wfr.ErrorMessage != failMsg {
-			t.Errorf("Runner.Fail() state change did not persist error message, %V", wfr)
+			t.Errorf("Runner.Fail() state change did not persist error message, %v", wfr)
 		}
 	})
 }
@@ -211,13 +211,13 @@ func TestRunner_Start(t *testing.T) {
 	wfr := &Runner{}
 	t.Run("set start state", func(t *testing.T) {
 		if wfr.State == "started" {
-			t.Errorf("Runner.Start() error: step already set to started, %V", wfr)
+			t.Errorf("Runner.Start() error: step already set to started, %v", wfr)
 		}
 
 		wfr.Start()
 
 		if wfr.State != "started" {
-			t.Errorf("Runner.Start() state change did not persist to started, %V", wfr)
+			t.Errorf("Runner.Start() state change did not persist to started, %v", wfr)
 		}
 	})
 }

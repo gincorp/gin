@@ -154,7 +154,7 @@ func TestMasterManager_Consume(t *testing.T) {
 				}
 
 				if gotOutput["UUID"].(string) != "efgh-456" {
-					t.Errorf("MasterManager.Consume() error = received uuid %V, want 'efgh-456'", gotOutput["UUID"])
+					t.Errorf("MasterManager.Consume() error = received uuid %v, want 'efgh-456'", gotOutput["UUID"])
 					return
 				}
 			})

@@ -29,7 +29,7 @@ func TestStep_Compile(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Step.Compile() error = %V, wantErr %V", err, tt.wantErr)
+				t.Errorf("Step.Compile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 
