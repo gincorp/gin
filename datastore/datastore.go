@@ -61,7 +61,7 @@ func (d Datastore) SaveWorkflow(w workflow.Workflow, overwrite bool) error {
 	}
 
 	if s != "" && overwrite == false {
-		return errors.New(fmt.Sprintf("Refusing to overwrite workflow %q", w.Name))
+		return fmt.Errorf("Refusing to overwrite workflow %q", w.Name)
 	}
 
 	return d.save(wfConfigName(w.Name), j)
