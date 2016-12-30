@@ -1,7 +1,7 @@
 gin
 ==
 
-![gin gopher](doc/gopher_small.png)
+![gin gopher](doc/gopher-text_small.png)
 
 gin is a simple distributed workflow engine, including task brokerage and staefulness, written in go.
 
