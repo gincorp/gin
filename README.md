@@ -1,95 +1,58 @@
 gin
 ==
 
+![gin gopher](doc/gopher.png)
+
 gin is a simple distributed workflow engine, including task brokerage and staefulness, written in go.
 
-It contains three components; of which there may be a multitude of instances:
+This document provides some contextual data for the project. Please see [Getting Started](GETTING_STARTED.md) for a deeper dive.
 
-* One or more master Nodes
-* One or more job Nodes
-* One or more API Nodes
+```bash
+$ go get -u github.com/gincorp/gin
+$ # master node
+$ gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
+$ # job node
+$ gin -mode job -amqp amqp://guest:guest@localhost/vhost
+$ # api node
+$ gin -mode api -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
+```
 
-And a couple of dependencies:
+## Architecture
+
+![naive gin architecture diagram](doc/workflow-engine.png)
+
+A gin cluster contains a number of components; two of which are necessary:
+
+* One or more master components
+* One or more job components
+
+There may also be, and practically always are, at least one API component too.
+
+These components are called 'Nodes'; further information of which may be found in the wiki.
+
+
+### Third Party Dependencies
+
+There are also a couple of dependencies
 
 * RabbitMQ
 * Redis
 
-A `workflow` is made up of `tasks` and `variables` and collated in a `runner` which stores state via a simple state machine.
 
-Master and Job nodes may be run right out of the box. Job nodes, however, come with very few configured jobs out the box and so it becomes simpler to create a project which initialises a JobManager object.
+### Terminology
 
-| who       | what |
-|-----------|------|
-| dockerhub | https://hub.docker.com/r/gincorp/gin/   |
-| circleci  | https://circleci.com/gh/gincorp/gin   |
-| licence   | MIT   |
+A gin cluster runs one or more **workflows**.
 
+A workflow contains a name, some optional **default variables** and a set of **tasks**.
 
+A set of variables is a key value pair of `string: string`.
 
-Master Nodes
---
+A task contains a **job function type**, a name and **contextual data**
 
-Master nodes are run with:
-
-```
-$ gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
-```
-
-Or via docker:
-
-```
-$ docker run -p8080:8080 jspc/gin -mode master -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0
-```
-
-Master nodes compile and broker workflow tasks via a runner.
-
-Job Nodes
---
-
-Job nodes are run with:
-
-```
-$ gin -mode job -amqp amqp://guest:guest@localhost/vhost
-```
-
-Or via docker:
-
-```
-$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost
-```
-
-Job nodes receive formatted tasks via rabbitmq, execute the task and return outputs and metadata.
-
-API Nodes
---
-
-API nodes are run with:
-
-```
-$ gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/0 -host 0.0.0.0 -port 8080
-```
-
-Or via docker:
-
-```
-$ docker run -p8080:8080 jspc/gin -mode job -amqp amqp://guest:guest@localhost/vhost -redis redis://localhost:6379/ -host 0.0.0.0 -port 8080
-```
-
-API nodes provide an interface to the engine; for starting and configuring workflows.
-
-**Note**: There is no auth-n, auth-z nor much of anything in front of the API. You should either use an API gateway or router in front of the tool. It probably wont be included in this project; it seems out of scope.
+A set of contextual data is much the same as default variables, but the values may be golang `text/template` data.
 
 
-Architecture
---
-
-![naive gin architecture diagram](doc/workflow-engine.png)
-
-
-Workflows
---
-
-A workflow definition looks like:
+#### A Workflow Definition
 
 ```json
 {
@@ -118,86 +81,13 @@ A workflow definition looks like:
 }
 ```
 
-The initial set of variables are accessible via the `.Defaults` key in context templates. These templates allow:
+### Valuable information
 
-* DRYing up of step data
-* The ability to rely on the output of a previous step
-
-To access the output of a previous step, one must `register` the step with a unique name. This will be recognisable by ansible users, for example (in fact: thats where I stole the idea).
-
-A workflow is kicked off via an api call:
-
-```bash
-curl -X POST -d '{"Name": "nontrivial workflow", "Variables":{"foo": "bar"} }' localhost:8080/wf/
-```
-
-The object `Variables` may be omitted: this is useful for data which is not known until runtime, and is made availabled via the `.Rumtime` key in context templates; in an identical fashion to how `.Defaults` works.
-
-The request mints, and returns, a UUID. A workflow runner is attached to this uuid. This uuid can be used to view the status of a workflow; like the follow failed workflow:
-
-```bash
-$ curl localhost:8080/wf/7423bbb5-b020-4410-91b6-a5e2754e6a47
-```
-
-Returning:
-
-```json
-{
-  "EndTime": "2016-12-14T11:40:54.367619801Z",
-  "ErrorMessage": "Step \"Test Stuff\" failed. See below",
-  "Last": "Test Stuff",
-  "StartTime": "2016-12-14T11:34:32.703863903Z",
-  "State": "failed",
-  "UUID": "7423bbb5-b020-4410-91b6-a5e2754e6a47",
-  "Variables": {
-    "Defaults": {
-      "content_type": "application/data",
-      "echo_url": "http://172.17.0.1:8000/some-endpoint"
-    }
-  },
-  "Workflow": {
-    "Name": "do stuff",
-    "Steps": [
-      {
-        "Context": {
-          "content-type": "application/data",
-          "data": "foo=bar",
-          "url": "http://172.17.0.1:8000/some-endpoint"
-        },
-        "Duration": "2 ms",
-        "End": "2016-12-14T11:36:06",
-        "ErrorMessage": "Post http://172.17.0.1:8000/some-endpoint: dial tcp 172.17.0.1:8000: getsockopt: connection refused",
-        "Failed": true,
-        "Name": "Test Stuff",
-        "Register": "echo_data",
-        "Start": "2016-12-14T11:36:06",
-        "Type": "post-to-web",
-        "UUID": ""
-      },
-      {
-        "Context": {
-          "message": "{{.echo_data.Host}}"
-        },
-        "Duration": "",
-        "End": "",
-        "ErrorMessage": "",
-        "Failed": false,
-        "Name": "Templatery Stuff",
-        "Register": "something",
-        "Start": "",
-        "Type": "log",
-        "UUID": ""
-      }
-    ],
-    "Variables": {
-      "content_type": "application/data",
-      "echo_url": "http://172.17.0.1:8000/some-endpoint"
-    }
-  }
-}
-```
-
-Here we see the first step has been compiled, yet the second step has npt. This is because a step is compiled right before it is run, to allow it access to the latest data. We can also see the runner has failed; it could not get access to a service and thus bombs out.
+| who       | what |
+|-----------|------|
+| dockerhub | https://hub.docker.com/r/gincorp/gin/   |
+| circleci  | https://circleci.com/gh/gincorp/gin   |
+| licence   | MIT   |
 
 
 Licence
