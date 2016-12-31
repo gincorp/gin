@@ -16,7 +16,7 @@ $ docker run -p 6379 --name wf-redis redis
 Configuring a Workflow
 --
 
-In the directory [`example/create_workflow`](examples/workflow) there is a sample configuration script. This script will generate some json and stick it in our redis server. This json, though, can be generated any way- it just has to be valid and in redis under the correct key.
+In the directory [`example/create_workflow`](example/create_workflow) there is a sample configuration script. This script will generate some json and stick it in our redis server. This json, though, can be generated any way- it just has to be valid and in redis under the correct key.
 
 This workflow definition will run a job function called `get-financial` and store the output of this under the key `finance`. It will then email this information using the template:
 
@@ -63,7 +63,7 @@ Job nodes, though, are different; the default job functions in gin are very basi
 1. `get-from-web` - get some data from an endpoint somewhere
 1. `log` - dump some data into the job node's log
 
-In [`example/jobs`](examples/jobs) there is a simple implementation of how one would integrate jobs. In `main.go` we initialise a new job node:
+In [`example/jobs`](example/jobs) there is a simple implementation of how one would integrate jobs. In `main.go` we initialise a new job node:
 
 ```golang
 n := node.NewNode(*amqpURI, "", "job")
