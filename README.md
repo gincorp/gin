@@ -1,5 +1,7 @@
-gin
-==
+[![Build Status](https://travis-ci.org/gincorp/gin.svg?branch=master)](https://travis-ci.org/gincorp/gin)
+[![GoDoc](https://godoc.org/github.com/gincorp/gin?status.svg)](https://godoc.org/github.com/gincorp/gin)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gincorp/gin)](https://goreportcard.com/report/github.com/gincorp/gin)
+
 
 ![gin gopher](doc/gopher-text_small.png)
 

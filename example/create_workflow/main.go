@@ -19,74 +19,74 @@
 package main
 
 import (
-    "flag"
-    "log"
-    "os"
-    "strings"
+	"flag"
+	"log"
+	"os"
+	"strings"
 
-    "github.com/gincorp/gin/datastore"
-    "github.com/gincorp/gin/workflow"
+	"github.com/gincorp/gin/datastore"
+	"github.com/gincorp/gin/workflow"
 )
 
 var (
-    redisURI *string
+	redisURI *string
 )
 
 func init() {
-    redisURI = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
-    flag.Parse()
+	redisURI = flag.String("redis", "redis://localhost:6379/0", "URI of redis node")
+	flag.Parse()
 }
 
 func main() {
-    d, err := datastore.NewDatastore(*redisURI)
-    if err != nil {
-        panic(err)
-    }
+	d, err := datastore.NewDatastore(*redisURI)
+	if err != nil {
+		panic(err)
+	}
 
-    log.Print(d.SaveWorkflow(sendDailyEmail(), true))
+	log.Print(d.SaveWorkflow(sendDailyEmail(), true))
 }
 
 func sendDailyEmail() workflow.Workflow {
-    // Grab some information about some stuff, email it
+	// Grab some information about some stuff, email it
 
-    vars := make(map[string]string)
-    vars["mail_host"] = "smtp.gmail.com"
-    vars["mail_port"] = "587"
-    vars["mail_from"] = os.Getenv("SENDER_ADDRESS")
-    vars["mail_to"] = os.Getenv("RECEIPIENT_ADDRESS")
+	vars := make(map[string]string)
+	vars["mail_host"] = "smtp.gmail.com"
+	vars["mail_port"] = "587"
+	vars["mail_from"] = os.Getenv("SENDER_ADDRESS")
+	vars["mail_to"] = os.Getenv("RECEIPIENT_ADDRESS")
 
-    emailBody := []string{
-        "Greetings,",
-        "",
-        "The markets:",
-        "{{ range .finance.prices }} {{ .Name }}: {{ .Price }} \r\n{{ end }}",
-        "",
-        "Regards,",
-        "gin",
-    }
+	emailBody := []string{
+		"Greetings,",
+		"",
+		"The markets:",
+		"{{ range .finance.prices }} {{ .Name }}: {{ .Price }} \r\n{{ end }}",
+		"",
+		"Regards,",
+		"gin",
+	}
 
-    return workflow.Workflow{
-        Name:      "Send daily email",
-        Variables: vars,
-        Steps: []workflow.Step{
-            workflow.Step{
-                Name:     "Get Financial Information",
-                Type:     "get-financial",
-                Register: "finance",
-            },
-            workflow.Step{
-                Name: "Send Email",
-                Type: "send-email",
-                Context: map[string]string{
-                    "host": "{{ .Defaults.mail_host }}",
-                    "port": "{{ .Defaults.mail_port }}",
+	return workflow.Workflow{
+		Name:      "Send daily email",
+		Variables: vars,
+		Steps: []workflow.Step{
+			{
+				Name:     "Get Financial Information",
+				Type:     "get-financial",
+				Register: "finance",
+			},
+			{
+				Name: "Send Email",
+				Type: "send-email",
+				Context: map[string]string{
+					"host": "{{ .Defaults.mail_host }}",
+					"port": "{{ .Defaults.mail_port }}",
 
-                    "from":    "{{ .Defaults.mail_from }}",
-                    "to":      "{{ .Runtime.mail_to }}",
-                    "subject": "Daily Update Email",
-                    "body":    strings.Join(emailBody[:], "\r\n"),
-                },
-            },
-        },
-    }
+					"from":    "{{ .Defaults.mail_from }}",
+					"to":      "{{ .Runtime.mail_to }}",
+					"subject": "Daily Update Email",
+					"body":    strings.Join(emailBody[:], "\r\n"),
+				},
+			},
+		},
+	}
 }
