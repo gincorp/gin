@@ -1,0 +1,14 @@
+language: go
+
+go:
+  - 1.7.x
+  - tip
+
+script:
+  - go test -cpu=1,2 -v -tags integration ./...
+
+after_success:
+  test ! -z "$TRAVIS_TAG" && curl -s https://raw.githubusercontent.com/goreleaser/get/master/latest | bash
+
+notifications:
+  email: false
