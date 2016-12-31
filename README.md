@@ -5,7 +5,7 @@
 
 ![gin gopher](doc/gopher-text_small.png)
 
-gin is a simple distributed workflow engine, including task brokerage and staefulness, written in go.
+gin is a simple distributed workflow engine, including task brokerage and statefulness, written in go.
 
 This document provides some contextual data for the project. Please see [Getting Started](GETTING_STARTED.md) for a deeper dive.
 

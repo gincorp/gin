@@ -6,7 +6,7 @@ This document will configure a simple gin cluster, with a workflow and custom jo
 Pre-requisities
 --
 
-This guide requires redis and rabbitamqp. To get these going via docker, lazily a direct mapping of ports, the following commands may be run:
+This guide requires redis and rabbit amqp. To get these going via docker, lazily a direct mapping of ports, the following commands may be run:
 
 ```bash
 $ docker run -p 5672:5672 -p 15672:15672 -d --hostname some-rabbit --name some-rabbit rabbitmq:3-management
@@ -55,7 +55,7 @@ To run a workflow we'll need to run:
 1. A Job node with access to the job functions we've put in our workflow steps; and
 1. An API node to kick off and monitor out builds
 
-The master node that ships with gin is fine for our purposes; a master node is merely a workflow broker and state manager. This is very generic and very complete. Ditto the API node; the defailt api is a very simple beast.
+The master node that ships with gin is fine for our purposes; a master node is merely a workflow broker and state manager. This is very generic and very complete. Ditto the API node; the default api is a very simple beast.
 
 Job nodes, though, are different; the default job functions in gin are very basic and sparse. Out of the box we provide:
 
