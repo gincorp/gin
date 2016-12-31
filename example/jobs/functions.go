@@ -81,8 +81,8 @@ func sendEmail(jn taskmanager.JobNotification) (output map[string]interface{}, e
 		mailhost,
 	)
 
-	from := mail.Address{"gin", jn.Context["from"]}
-	to := mail.Address{"", jn.Context["to"]}
+	from := mail.Address{Name: "gin", Address: jn.Context["from"]}
+	to := mail.Address{Address: jn.Context["to"]}
 
 	header := make(map[string]string)
 
