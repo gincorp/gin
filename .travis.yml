@@ -1,14 +1,19 @@
 language: go
 
+services:
+  - docker
+
+sudo: required
+
 go:
-  - 1.7.x
+  - 1.7.4
   - tip
 
 script:
   - go test -cpu=1,2 -v -tags integration ./...
 
 after_success:
-  test ! -z "$TRAVIS_TAG" && curl -s https://raw.githubusercontent.com/goreleaser/get/master/latest | bash
+  - ./script/deploy.sh
 
 notifications:
   email: false
