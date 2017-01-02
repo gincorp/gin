@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -axe
+set -e
 
 if [ ! -z "${TRAVIS_TAG}" ] && [ "${TRAVIS_GO_VERSION}" = "1.7.4" ]; then
     go get -u github.com/goreleaser/releaser
