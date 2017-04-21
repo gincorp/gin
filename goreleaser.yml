@@ -1,2 +1,6 @@
-repo: gincorp/gin
-binary_name: gin
+release:
+  github: 
+    owner: gincorp
+    name: gin
+build:
+  binary: gin
